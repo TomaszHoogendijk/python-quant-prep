@@ -76,9 +76,23 @@ def compare_strategies(num_rows, sit_time, num_trials):
     time_dictionary["random_boarding_order"] = random_order
     return time_dictionary
 
+
+
+def test_strategies() -> str:
+    result = compare_strategies(5,1,10)
+    comparison_set = {"front_to_back_order", "back_to_front_order", "random_boarding_order"}
+    assert(front_to_back_order(5)) ==[1,2,3,4,5]
+    assert(back_to_front_order(5)) == [5,4,3,2,1] 
+    assert(sorted(random_boarding_order(5))) == [1,2,3,4,5] 
+    assert(type(result)) == dict
+    assert(type(result["front_to_back_order"])) == float
+    assert(type(result["back_to_front_order"])) == float
+    assert(type(result["random_boarding_order"])) == float
+    assert(set(result.keys())) == comparison_set
+    
+    return "All sanity tests passed."
+    
+
 if __name__ == "__main__":
-    print(front_to_back_order(5))
-    print(back_to_front_order(5))
-    print(random_boarding_order(5))
-    print(compare_strategies(5,1,1000))
+    print(test_strategies())
     
