@@ -103,32 +103,6 @@ aisle value = where that person wants to go
 
 ---
 
-## Current status after Day 6
-
-Projects built so far:
-- Dice generator
-- Dice simulation
-- Dice probability plotting
-- Airplane boarding state-machine simulation
-- Basic GitHub repo structure
-
-Next steps:
-- Manually test tiny boarding cases
-- Add a total boarding time metric
-- Add random boarding orders
-- Compare boarding strategies
-- Plot average boarding times
-- Later: animate the boarding process
-
-Also started organizing the codebase for GitHub:
-- Moved clean projects into separate files/folders
-- Kept `replicate.py` as scratch/backup
-- Added `README.md`
-- Added `.gitignore`
-- Prepared repo structure for GitHub
-
----
-
 ## Day 6 — 04/07/2026
 
 Extended the boarding simulator from a single simulation into a strategy comparison tool.
@@ -166,39 +140,58 @@ Next step:
 
 ## Day 7 — 05/07/2026
 
-Fixed the random strategy averaging issue and cleaned the strategy comparison layer.
+### Completed
 
-Covered:
-- Passing functions as arguments
-- Calling a strategy function inside a trial loop
-- Distinguishing a function from the result of calling a function
-- Returning total boarding time from the simulator
-- Using `git diff` to review changes before committing
-- Understanding Git’s `No newline at end of file` warning
+- Fixed the random-strategy averaging bug in the boarding simulator.
+- Updated `average_boarding_time()` so it receives a strategy function instead of a pre-generated boarding order.
+- Confirmed that deterministic strategies reuse the same logical order each trial, while the random strategy generates a fresh order each trial.
+- Added basic sanity tests for the strategy helper functions and strategy-comparison output.
+- Cleaned the `if __name__ == "__main__"` section so it only runs the sanity test output.
+- Used `git diff`, committed the working update, and pushed the changes to GitHub.
 
-Built / updated:
-- `simulate_boarding(...)` now returns `total_time`
-- `average_boarding_time(...)` now calls `strategy(num_rows)` inside each trial
-- `compare_strategies(...)` returns average boarding times for:
-  - front-to-back boarding
-  - back-to-front boarding
+### What works now
+
+- `front_to_back_order(num_rows)` returns rows in ascending order.
+- `back_to_front_order(num_rows)` returns rows in descending order.
+- `random_boarding_order(num_rows)` returns a valid random permutation of all rows.
+- `compare_strategies(num_rows, sit_time, num_trials)` returns a dictionary with average boarding times for:
+  - front-to-back
+  - back-to-front
   - random boarding
+- Sanity tests confirm the basic output structure and expected helper-function behavior.
 
-Main concept:
-- `strategy = random_boarding_order` stores the function.
-- `strategy(num_rows)` calls the function and creates an order.
-- For random boarding, calling the function inside the loop creates a fresh random order each trial.
+### Bugs / concepts debugged
 
-Why this matters:
-- Front-to-back and back-to-front are deterministic, so their average times stay fixed.
-- Random boarding changes each trial, so its average converges as the number of trials increases.
-- The sample mean of many random boarding times should stabilize around the expected boarding time.
+- Understood the difference between passing a function object and calling a function:
+  - `random_boarding_order` passes the function.
+  - `random_boarding_order(num_rows)` creates one specific random order.
+- Fixed the Monte Carlo issue where one random order was reused across trials.
+- Learned how `assert` can be used for basic sanity tests.
+- Learned that testing each condition separately makes failures easier to locate.
+- Clarified dictionary key testing:
+  - `result.keys()` gives the dictionary keys.
+  - `set(result.keys()) == expected_keys` checks that the output has exactly the expected strategy names.
+- Saw why lists are unhashable and why checking a whole list with `in result.keys()` is not the right logic.
 
-Example output:
-```text
-{
-    "front_to_back_order": 16.0,
-    "back_to_front_order": 8.0,
-    "random_boarding_order": approximately 12.4
-}
-```
+### Tests added
+
+Basic sanity tests now check:
+
+- `front_to_back_order(5) == [1, 2, 3, 4, 5]`
+- `back_to_front_order(5) == [5, 4, 3, 2, 1]`
+- `random_boarding_order(5)` contains exactly the numbers 1 through 5
+- `compare_strategies(5, 1, 10)` returns a dictionary
+- the comparison dictionary contains exactly the expected strategy names
+- the strategy averages are returned as floats
+
+### Git / workflow
+
+- Used `git diff` to inspect changes before committing.
+- Cleaned the main demo output.
+- Committed and pushed the completed Day 7 work.
+
+### Next steps
+
+- Add a basic bar chart for strategy comparison results.
+- Keep the plotting simple: no pandas, no animation, no extra simulator realism yet.
+- Later, add more structured tests for `simulate_boarding()` itself using small deterministic examples.

@@ -76,6 +76,24 @@ def compare_strategies(num_rows, sit_time, num_trials):
     time_dictionary["random_boarding_order"] = random_order
     return time_dictionary
 
+# So what is the logic? Well we have a list of num_rows, sit_time and num_trials stays an integer. Call num_rows letters and sit_time numbers. 
+# We want 1A, 1B, 1C, 1D, 2A,2B,2C etc etc. So mix and match. Therefore there are in total n*m duos. for ABC and 123 therefore 9. 
+# I see this best as a double loop, a double sum.
+
+def greater_compare_strategies(num_rows: list, sit_time: list, num_trials: int):
+    storage = {}
+    for i in num_rows: 
+        for j in sit_time:
+            z = compare_strategies(i,j,num_trials)
+            z["rows"] = i
+            z["sit_time"] = j
+            storage[i,j] = z
+    overview = []
+    for value in storage.values():
+        overview.append(f"Rows: {value['rows']}| sit_time: {value['sit_time']}| front: {value['front_to_back_order']}| back: {value['back_to_front_order']}| random: {value['random_boarding_order']}")
+    return storage, overview
+            
+
 
 
 def test_strategies() -> str:
@@ -94,5 +112,8 @@ def test_strategies() -> str:
     
 
 if __name__ == "__main__":
+    storage, overview = greater_compare_strategies([5, 10, 20, 40],[0, 1, 2, 3],10)
+    for line in overview:
+        print(line)
     print(test_strategies())
     
