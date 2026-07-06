@@ -127,6 +127,24 @@ def plot_strategy_rows(results, fixed_sit_time):
     plt.legend()
     plt.show()
 
+def plot_strategy_sit_time(results, fixed_rows):
+    x = []
+    yf = []
+    yb = []
+    yr = []
+    for value in results.values():
+        if value["rows"] == fixed_rows:
+            x.append(value["sit_time"])
+            yf.append(value["front_to_back_order"])
+            yb.append(value["back_to_front_order"])
+            yr.append(value["random_boarding_order"])
+    plt.plot(x, yf, label="front", color="blue", linestyle="-", marker="o")
+    plt.plot(x, yb, label="back", color="green", linestyle="--", marker="o")
+    plt.plot(x, yr, label="random", color="orange", linestyle=":", marker="o")
+    plt.xlabel("Sit time")
+    plt.ylabel("Average time per strategy")
+    plt.legend()
+    plt.show()
     
 
 if __name__ == "__main__":
@@ -135,4 +153,5 @@ if __name__ == "__main__":
         print(line)
     print(test_strategies())
     plot_strategy_rows(results, fixed_sit_time=1)
+    plot_strategy_sit_time(results, fixed_rows=10)
     
