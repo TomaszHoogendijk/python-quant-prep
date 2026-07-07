@@ -130,47 +130,50 @@ def plot_strategy_sit_time(results, fixed_rows):
     plt.show()
 
 def interpret_strategy(results):
-    f_b = 0
-    b_b = 0
-    r_b = 0
     max_difference = 0
+    min_difference = 10000
+    fixed_rows = {}
+    fixed_sit_time = {}
+    wins = {"front": 0, "back": 0, "random": 0}
     for test in results.values():
         print(f"\nRows: {test['rows']}, sit_time: {test['sit_time']}")
         front = test["front_to_back_order"]
         back = test["back_to_front_order"]
         random = test["random_boarding_order"]
-        maximum = max(front,back,random)
-        minimum = min(front,back,random)
-        difference = maximum-minimum
+        scores = {"front": front,
+                  "back": back,
+                  "random": random}
+        maximum = max(scores, key=scores.get)
+        minimum = min(scores, key=scores.get)
+        difference = scores[maximum]-scores[minimum]
+        best_script = {"front": f"Best strategy: front_to_back_order, {front}", 
+                       "back": f"Best strategy: back_to_front_order, {back}", 
+                       "random": f"Best strategy: random_boarding_order, {random}"}
+        worst_script = {"front": f"Worst strategy: front_to_back_order, {front}", 
+                       "back": f"Worst strategy: back_to_front_order, {back}", 
+                       "random": f"Worst strategy: random_boarding_order, {random}"}
+        if test['rows'] == 20:
+            fixed_rows[test['sit_time']] = difference
+        if test['sit_time'] == 1:
+            fixed_sit_time[test['rows']] = difference
         if difference>max_difference:
             max_difference = difference
             largest_gap = f"Largest gap happened at rows = {test['rows']}, sit_time = {test['sit_time']}"
-        if minimum == front:
-            print(f"Best strategy: front_to_back_order, {front}")
-            f_b += 1
-        elif minimum == back:
-            print(f"Best strategy: back_to_front_order, {back}") 
-            b_b += 1
-        else:
-            print(f"Best strategy: random_boarding_order, {random}")
-            r_b += 1
-        if maximum == front:
-            print(f"Worst strategy: front_to_back_order, {front}")
-        elif maximum == back:
-            print(f"Worst strategy: back_to_front_order {back}") 
-        else:
-            print(f"Worst strategy: random_boarding_order {random}")
+        if min_difference>difference:
+            min_difference = difference
+            smallest_gap = f"Smallest gap happened at rows = {test['rows']}, sit_time = {test['sit_time']}"
+        print(best_script[minimum])
+        wins[minimum]+=1
+        print(worst_script[maximum])
         print(f"Gap: {difference}")
-        print(f"Random gap from best: {random-minimum}")
-    winner = max(f_b,b_b,r_b)
-    total = f_b + b_b + r_b
-    if winner == f_b:
-        won = f"Front_to_back won {f_b}/{total} settings"
-    elif winner == b_b:
-        won = f"Back_to_front won {b_b}/{total} settings"
-    else:
-        won = f"Random_boarding_order won {r_b}/{total} settings"
-    print(f"\nOverall summary \n{won} \n{largest_gap}")
+        print(f"Random gap from best: {round(random-scores[minimum],2)}")
+    winner = max(wins, key=wins.get)
+    print(wins)
+    print(winner)
+    won_script  = {"front": f"Front_to_back_order won {wins[winner]}/{sum(wins.values())} settings", 
+                       "back": f"Back_to_front_order won {wins[winner]}/{sum(wins.values())} settings", 
+                       "random": f"Random_boarding_order won {wins[winner]}/{sum(wins.values())} settings"}
+    print(f"\nOverall summary \n{won_script[winner]} \n{largest_gap} \n{smallest_gap}")
 
 
 def test_strategies() -> str:
@@ -186,7 +189,6 @@ def test_strategies() -> str:
     assert(set(result.keys())) == comparison_set
     return "All sanity tests passed."
 
-print(simulate_boarding(2,[1,2],1))
 
 def test_simulation() -> str:
     boarding_order_front = [1,2]
@@ -197,9 +199,6 @@ def test_simulation() -> str:
     assert(simulate_boarding(2,[2,1],0))[2] == 4
     assert(simulate_boarding(2,boarding_order_front,1))[2] == 7
     assert(boarding_order_front) == front_test
-
-
-
     return "Simulation tests passed"
     
 
