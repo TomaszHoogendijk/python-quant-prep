@@ -184,8 +184,23 @@ def test_strategies() -> str:
     assert(type(result["back_to_front_order"])) == float
     assert(type(result["random_boarding_order"])) == float
     assert(set(result.keys())) == comparison_set
-    
     return "All sanity tests passed."
+
+print(simulate_boarding(2,[1,2],1))
+
+def test_simulation() -> str:
+    boarding_order_front = [1,2]
+    front_test = boarding_order_front.copy()
+    assert(simulate_boarding(1,[1],0))[2] == 3 
+    assert(simulate_boarding(1,[1],1))[2] == 4
+    assert(simulate_boarding(2,[1,2],0))[2] == 5
+    assert(simulate_boarding(2,[2,1],0))[2] == 4
+    assert(simulate_boarding(2,boarding_order_front,1))[2] == 7
+    assert(boarding_order_front) == front_test
+
+
+
+    return "Simulation tests passed"
     
 
 if __name__ == "__main__":
@@ -193,6 +208,7 @@ if __name__ == "__main__":
     for line in results:
         print(line)
     print(test_strategies())
+    print(test_simulation())
     plot_strategy_rows(results, fixed_sit_time=1)
     plot_strategy_sit_time(results, fixed_rows=10)
     interpret_strategy(results)
