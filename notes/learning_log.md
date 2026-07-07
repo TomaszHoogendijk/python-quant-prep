@@ -195,3 +195,60 @@ Basic sanity tests now check:
 - Add a basic bar chart for strategy comparison results.
 - Keep the plotting simple: no pandas, no animation, no extra simulator realism yet.
 - Later, add more structured tests for `simulate_boarding()` itself using small deterministic examples.
+
+---
+
+## Day 8 — 06/07/2026
+
+### Completed
+
+- Added an experiment layer for the boarding simulator.
+- Ran strategy comparisons over multiple combinations of:
+  - number of rows
+  - `sit_time`
+- Stored experiment results in a dictionary using tuple keys like `(rows, sit_time)`.
+- Added readable experiment summary output.
+- Added plots showing strategy performance:
+  - by number of rows for a fixed `sit_time`
+  - by `sit_time` for a fixed number of rows
+- Added an interpretation layer that identifies the best and worst strategy for each setting.
+- Calculated the gap between the fastest and slowest strategy.
+- Calculated the random strategy's gap from the best strategy.
+- Summarized which strategy won most often and where the largest gap occurred.
+
+### What works now
+
+- The simulator can compare front-to-back, back-to-front, and random boarding across an experiment grid.
+- Results are stored instead of only printed.
+- Stored results can be reused for summaries, plots, and interpretation.
+- The interpretation output gives a readable explanation of the experiment results.
+
+### Bugs / concepts debugged
+
+- Learned that a full grid means every combination of rows and `sit_time`, not just matching pairs.
+- Understood that for 4 row settings, 4 `sit_time` settings, 3 strategies, and 100 trials, the simulator runs `4 × 4 × 3 × 100` times.
+- Learned why tuple keys like `(rows, sit_time)` work in dictionaries.
+- Learned that dictionaries cannot be used as dictionary keys because they are mutable and unhashable.
+- Debugged a “not subscriptable” issue while filtering stored experiment results.
+- Fixed the random-gap calculation:
+  - since lower boarding time is better, random's gap from best is `random - minimum`, not `maximum - random`.
+- Used `\n` to make printed output easier to read.
+
+### Main concepts
+
+- Experiment results become more useful when stored in a reusable structure.
+- Tuple keys are useful for storing results by multiple dimensions.
+- A simulation project should not only generate numbers, but also summarize what the numbers mean.
+- Plotting and printed interpretation should tell the same story.
+- The results matched the model intuition: back-to-front boarding is fastest because rear passengers move through the aisle before front passengers block it, while front-to-back creates early bottlenecks.
+
+### Git / workflow
+
+- Used `git status`, `git diff`, and ran the boarding simulation before committing.
+- Committed and pushed the Day 8 experiment and interpretation updates.
+
+### Next steps
+
+- Add more deterministic tests for `simulate_boarding()` using tiny examples.
+- Improve the interpretation code for readability and tie handling.
+- Consider reducing repeated strategy-name logic with a small local dictionary.
