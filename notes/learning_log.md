@@ -252,3 +252,63 @@ Basic sanity tests now check:
 - Add more deterministic tests for `simulate_boarding()` using tiny examples.
 - Improve the interpretation code for readability and tie handling.
 - Consider reducing repeated strategy-name logic with a small local dictionary.
+
+---
+
+## Day 9 — 07/07/2026
+
+### Completed
+
+- Added deterministic tests for `simulate_boarding()`.
+- Tested small hand-checkable boarding scenarios.
+- Added a mutation test to confirm that the original `boarding_order` list is not changed by the simulator.
+- Improved the interpretation logic by using a `scores` dictionary for strategy times.
+- Replaced repeated best/worst strategy logic with `min(..., key=...)` and `max(..., key=...)`.
+- Counted how often each strategy wins across the experiment grid.
+- Added smallest-gap tracking alongside largest-gap tracking.
+- Cleaned the experiment interpretation output.
+
+### What works now
+
+- `simulate_boarding()` is tested directly on small deterministic cases.
+- The tests check both timing behavior and input-list mutation behavior.
+- The interpretation layer can identify:
+  - best strategy
+  - worst strategy
+  - strategy gap
+  - random gap from best
+  - win count by strategy
+  - largest and smallest strategy gaps
+
+### Bugs / concepts debugged
+
+- Understood that wrapper tests like `average_boarding_time()` are less direct than testing `simulate_boarding()` itself.
+- Used timestamp output from `simulate_boarding()` to verify why small examples produce their `total_time`.
+- Learned that mutable lists can be changed inside a function even if they are not returned.
+- Added a test to confirm that the original boarding order remains unchanged.
+- Learned the pattern `min(scores, key=scores.get)`:
+  - the function returns the key with the lowest associated value.
+  - this is useful when strategy names are keys and boarding times are values.
+- Improved win counting by using a dictionary instead of separate manual counters.
+
+### Main concepts
+
+- Core simulation logic should be tested directly with tiny examples.
+- Tests protect the simulator before later cleanup or refactoring.
+- A dictionary can map strategy names to scores, making best/worst logic cleaner.
+- Cleaner data structures reduce repeated conditional logic.
+- Public project notes should record progress and concepts learned, not private ratings or career calibration.
+
+### Git / workflow
+
+- Ran the simulator tests before committing.
+- Used `git status` and `git diff` before committing.
+- Committed and pushed the deterministic simulator tests and interpretation cleanup.
+
+### Next steps
+
+- Finish trend interpretation for the experiment report.
+- Summarize whether strategy gaps increase with:
+  - more rows
+  - higher `sit_time`
+- Split the long interpretation function into smaller helper functions after the full report works.
