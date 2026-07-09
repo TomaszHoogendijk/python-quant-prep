@@ -1,7 +1,8 @@
 import random
 import matplotlib.pyplot as plt
+from collections.abc import Callable
 
-def simulate_boarding(num_rows: int, boarding_order: list, sit_time: int):
+def simulate_boarding(num_rows: int, boarding_order: list[int], sit_time: int) -> tuple:
     """
     Simulate passenger movement through a single-aisle plane.
     sit_time = number of future movement rounds a passenger blocks
@@ -40,48 +41,48 @@ def simulate_boarding(num_rows: int, boarding_order: list, sit_time: int):
 
 
 def front_to_back_order(num_rows: int) -> list:
-    order = list(range(1,num_rows+1))
+    order = list(range(1, num_rows+1))
     return order
     
 def back_to_front_order(num_rows: int) -> list:
-    order = list(range(num_rows,0,-1))
+    order = list(range(num_rows, 0, -1))
     return order
 
 def random_boarding_order(num_rows: int) -> list:
-    order = random.sample(range(1,num_rows+1),num_rows)
+    order = random.sample(range(1, num_rows+1), num_rows)
     return order
 
-print(front_to_back_order(6))
-print(back_to_front_order(6))
-print(random_boarding_order(6))
 
-def average_boarding_time(num_rows: int, sit_time: int, num_trials: int, strategy):
-    total_time = 0
-    for i in range(num_trials):
-        time = simulate_boarding(num_rows, strategy(num_rows), sit_time)[2]
-        total_time += time
-    return total_time/num_trials
+def average_boarding_time(num_rows: int, sit_time: int, num_trials: int, order_function: Callable[[int], list[int]]) -> float:
+    total_time_sum = 0
+    for trial in range(num_trials):
+        boarding_order = order_function(num_rows)
+        _, _, trial_total_time = simulate_boarding(num_rows, boarding_order, sit_time)
+        total_time_sum += trial_total_time
+    average_trial_time = total_time_sum/num_trials
+    return average_trial_time
+
         
 
-def compare_strategies(num_rows, sit_time, num_trials):
-    time_dictionary = {}
+def compare_strategies(num_rows: int, sit_time: int, num_trials: int) -> dict[str, float]:
+    average_time_per_strategy = {}
     forward = average_boarding_time(num_rows, sit_time, num_trials, front_to_back_order)
     backwards = average_boarding_time(num_rows, sit_time, num_trials, back_to_front_order)
     random_order = average_boarding_time(num_rows, sit_time, num_trials, random_boarding_order)
-    time_dictionary["front_to_back_order"] = forward
-    time_dictionary["back_to_front_order"] = backwards
-    time_dictionary["random_boarding_order"] = random_order
-    return time_dictionary
-
+    average_time_per_strategy["front_to_back_order"] = forward
+    average_time_per_strategy["back_to_front_order"] = backwards
+    average_time_per_strategy["random_boarding_order"] = random_order
+    return average_time_per_strategy
 
 def greater_compare_strategies(num_rows: list, sit_time: list, num_trials: int) -> tuple:
     storage = {}
-    for i in num_rows: 
-        for j in sit_time:
-            z = compare_strategies(i,j,num_trials)
-            z["rows"] = i
-            z["sit_time"] = j
-            storage[i,j] = z
+    for row_count in num_rows: 
+        for sit_time_value in sit_time:
+            average_time_per_strategy = compare_strategies(row_count,sit_time_value,num_trials)
+            result_for_setting = average_time_per_strategy
+            result_for_setting["rows"] = row_count
+            result_for_setting["sit_time"] = sit_time_value
+            storage[row_count,sit_time_value] = result_for_setting
     overview = []
     for value in storage.values():
         overview.append(f"Rows: {value['rows']}| sit_time: {value['sit_time']}| front: {value['front_to_back_order']}| back: {value['back_to_front_order']}| random: {value['random_boarding_order']}")
@@ -270,8 +271,8 @@ def test_simulation() -> str:
     return "Simulation tests passed"
     
 
-if __name__ == "__main__" and 1 == 0:
-    results = greater_compare_strategies([5, 10, 20, 40],[0, 1, 2, 3],10)
+if __name__ == "__main__":
+    results, _ = greater_compare_strategies([5, 10, 20, 40],[0, 1, 2, 3],10)
     for line in results:
         print(line)
     print(test_strategies())
