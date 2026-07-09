@@ -401,3 +401,94 @@ Basic sanity tests now check:
   - `adjust_wait_time`
   - unclear temporary variables like `z`
 - Later split long functions, especially `interpret_strategy()`, into smaller helper functions.
+
+---
+
+## Day 11 — Cleanup, naming, and refactor preparation
+
+### Date
+
+2026-07-09
+
+### Commit / project
+
+Boarding simulation cleanup/refactor phase.
+
+### What works
+
+- Boarding simulator still runs end-to-end.
+- Strategy comparison works for front-to-back, back-to-front, and random boarding.
+- Average boarding time still works over repeated trials.
+- Experiment grid still works across row counts and sit times.
+- Plotting functions still work for fixed row / fixed sit-time views.
+- Interpretation/reporting layer still works, although it is too long and needs to be split.
+- Tests for strategy generation and simulator edge cases still exist.
+
+### What I changed
+
+- Cleaned variable names in strategy comparison functions.
+- Added clearer type hints in several functions.
+- Replaced unclear plotting variables like `yf`, `yb`, `yr` with `y_front`, `y_back`, and `y_random`.
+- Removed leftover debug print output from plotting.
+- Improved names inside `interpret_strategy()`:
+  - `scores` became average-time-based naming.
+  - `difference` became `worst_best_gap`.
+  - `wins` became `wins_count`.
+  - `test` became `result`.
+  - max/min gap variables became more explicit.
+- Noticed that `interpret_strategy()` is doing too many jobs and should be split later.
+
+### What I debugged / understood independently
+
+- `git diff` is not a timeline of all historic edits. It compares the last committed version against the current uncommitted working file.
+- Diff output is grouped by file location, not by the order in which edits were made.
+- Unsaved editor changes may not be included in a commit.
+- A function returning many values is possible, but too many returned values may signal that related state should eventually be grouped more cleanly.
+- Good variable names should preserve the model meaning, not just sound nicer.
+
+### Concepts learned
+
+- Semantic naming matters: `scores` was misleading because lower average time is better.
+- `max(average_time_per_strategy, key=average_time_per_strategy.get)` is clearer when the dictionary name matches the business logic.
+- `worst_best_gap` is more precise than a generic `difference`.
+- Refactoring should be incremental: first naming, then helper extraction.
+- Long functions should be split by responsibility, not by line count.
+- `interpret_strategy()` likely contains at least two major responsibilities:
+  - per-setting analysis/reporting
+  - overall summary/trend reporting
+
+### Rating-relevant notes
+
+#### Evidence that should raise rating
+
+- Improved naming judgment.
+- Pushed back on an ambiguous suggested name and gave a better reasoned alternative.
+- Used Git more responsibly with smaller commits.
+- Started identifying structural problems in the code independently.
+- Maintained working functionality while cleaning.
+
+#### Evidence that should NOT raise rating too much
+
+- `interpret_strategy()` is still too long and messy.
+- Some logic is still hard-coded around `rows = 20` and `sit_time = 1`.
+- Trend classification is still embedded inside the reporting function.
+- Return types and data structures are still not fully clean.
+- No major new simulator feature was added today.
+
+### Remaining gaps
+
+- Split `interpret_strategy()` into smaller helper functions.
+- Separate calculation from printing/reporting.
+- Clean trend classification logic.
+- Consider grouping returned summary state more cleanly instead of returning many loose values.
+- Add stronger tests around interpretation logic later.
+- Improve exact type hints for result dictionaries later.
+
+### Next step
+
+Start by splitting `interpret_strategy()` into:
+
+1. per-setting analysis/reporting
+2. overall summary/trend reporting
+
+Do this in one small commit, then run the script and check the diff before pushing.

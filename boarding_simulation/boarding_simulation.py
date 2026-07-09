@@ -244,6 +244,8 @@ def interpret_strategy(results):
     print(f"\nOverall summary \n\n{won_script[winner]} \n\n{largest_gap} \n{smallest_gap}")
     print(f"\n{gap_fixed_sit_time_script[gap_fixed_sit_time_result]} \n\n{gap_fixed_rows_script[gap_fixed_rows_result]}")
 
+
+
 def test_strategies() -> str:
     result = compare_strategies(5,1,10)
     comparison_set = {"front_to_back_order", "back_to_front_order", "random_boarding_order"}
@@ -279,5 +281,5 @@ if __name__ == "__main__":
     print(test_simulation())
     plot_strategy_rows(results, fixed_sit_time=1)
     plot_strategy_sit_time(results, fixed_rows=10)
-    interpret_strategy(results)
+    # interpret_strategy(results)
     
