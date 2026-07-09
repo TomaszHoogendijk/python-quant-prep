@@ -74,7 +74,7 @@ def compare_strategies(num_rows: int, sit_time: int, num_trials: int) -> dict[st
     average_time_per_strategy["random_boarding_order"] = random_order
     return average_time_per_strategy
 
-def greater_compare_strategies(num_rows: list, sit_time: list, num_trials: int) -> tuple:
+def greater_compare_strategies(num_rows: list[int], sit_time: list[int], num_trials: int) -> tuple:
     storage = {}
     for row_count in num_rows: 
         for sit_time_value in sit_time:
@@ -88,20 +88,21 @@ def greater_compare_strategies(num_rows: list, sit_time: list, num_trials: int) 
         overview.append(f"Rows: {value['rows']}| sit_time: {value['sit_time']}| front: {value['front_to_back_order']}| back: {value['back_to_front_order']}| random: {value['random_boarding_order']}")
     return storage, overview
 
-def plot_strategy_rows(results, fixed_sit_time):
+def plot_strategy_rows(results: dict, fixed_sit_time: int) -> None:
     x = []
-    yf = []
-    yb = []
-    yr = []
+    y_front = []
+    y_back = []
+    y_random = []
     for value in results.values():
+        print(value)
         if value["sit_time"] == fixed_sit_time:
             x.append(value["rows"])
-            yf.append(value["front_to_back_order"])
-            yb.append(value["back_to_front_order"])
-            yr.append(value["random_boarding_order"])
-    plt.plot(x, yf, label="front", color="blue", linestyle="-", marker="o")
-    plt.plot(x, yb, label="back", color="green", linestyle="--", marker="o")
-    plt.plot(x, yr, label="random", color="orange", linestyle=":", marker="o")
+            y_front.append(value["front_to_back_order"])
+            y_back.append(value["back_to_front_order"])
+            y_random.append(value["random_boarding_order"])
+    plt.plot(x, y_front, label="front", color="blue", linestyle="-", marker="o")
+    plt.plot(x, y_back, label="back", color="green", linestyle="--", marker="o")
+    plt.plot(x, y_random, label="random", color="orange", linestyle=":", marker="o")
     plt.xlabel("Number of rows")
     plt.ylabel("Average time per strategy")
     plt.legend()
@@ -109,18 +110,18 @@ def plot_strategy_rows(results, fixed_sit_time):
 
 def plot_strategy_sit_time(results, fixed_rows):
     x = []
-    yf = []
-    yb = []
-    yr = []
+    y_front = []
+    y_back = []
+    y_random = []
     for value in results.values():
         if value["rows"] == fixed_rows:
             x.append(value["sit_time"])
-            yf.append(value["front_to_back_order"])
-            yb.append(value["back_to_front_order"])
-            yr.append(value["random_boarding_order"])
-    plt.plot(x, yf, label="front", color="blue", linestyle="-", marker="o")
-    plt.plot(x, yb, label="back", color="green", linestyle="--", marker="o")
-    plt.plot(x, yr, label="random", color="orange", linestyle=":", marker="o")
+            y_front.append(value["front_to_back_order"])
+            y_back.append(value["back_to_front_order"])
+            y_random.append(value["random_boarding_order"])
+    plt.plot(x, y_front, label="front", color="blue", linestyle="-", marker="o")
+    plt.plot(x, y_back, label="back", color="green", linestyle="--", marker="o")
+    plt.plot(x, y_random, label="random", color="orange", linestyle=":", marker="o")
     plt.xlabel("Sit time")
     plt.ylabel("Average time per strategy")
     plt.legend()
