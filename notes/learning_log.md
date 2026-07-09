@@ -312,3 +312,92 @@ Basic sanity tests now check:
   - more rows
   - higher `sit_time`
 - Split the long interpretation function into smaller helper functions after the full report works.
+
+---
+
+## Day 10 — 09/07/2026
+
+### Completed
+
+- Finished the boarding strategy trend interpretation layer.
+- Added summary wording for fixed-row and fixed-sit-time slices.
+- Cleaned the interpretation output so it describes:
+  - best strategy
+  - worst strategy
+  - strategy gap
+  - random gap from best
+  - overall win count
+  - largest and smallest strategy gaps
+  - whether strategy gaps increase or decrease across selected slices
+- Fixed misleading trend wording by changing it to:
+  - "Within the rows = 20 slice..."
+  - "Within the sit_time = 1 slice..."
+- Ran final checks before pushing.
+- Pushed the working version before starting the cleanup/refactor phase.
+
+### What works now
+
+- The simulator can compare front-to-back, back-to-front, and random boarding strategies.
+- The experiment grid can test multiple row counts and sit times.
+- Results are stored in dictionaries and reused for:
+  - plotting
+  - summary output
+  - trend interpretation
+- The strategy interpretation function can identify the best and worst strategy for each setting.
+- The report can summarize whether strategy gaps appear to increase with:
+  - larger planes
+  - longer passenger blocking times
+
+### Bugs / concepts debugged
+
+- Fixed the wording problem around trend slices.
+  - The code was not testing all possible fixed-row or fixed-sit-time values.
+  - It was specifically checking the `rows = 20` slice and the `sit_time = 1` slice.
+- Reviewed why `assert` works without needing to wrap the full expression in parentheses.
+- Added/considered an invariant check that final `wait_time` should be empty after simulation ends.
+- Reviewed why `wait_time` is returned and why it can be useful during debugging.
+- Understood that `assert simulate_boarding(...)[2] == value` checks the indexed return value directly.
+- Reviewed why the movement loop must go backwards so passengers cannot move multiple positions in one timestep.
+- Understood why the condition `aisle[position] != position` is necessary:
+  - it prevents passengers from moving past their target row.
+- Reviewed why the simulator uses a copied boarding order:
+  - the original input should not be mutated.
+  - the copied list represents the remaining boarding queue.
+
+### Main concepts
+
+- Dictionaries are useful for storing structured experiment results.
+- A result dictionary can be reused across plotting, interpretation, and summary logic.
+- Simulation code often works by updating state across timesteps.
+- Building a "next state" dictionary is safer than removing keys from a dictionary while iterating over it.
+- Tests should check exact expected values, not just whether outputs are truthy.
+- Naming should describe the model meaning, not only the technical implementation.
+  - Example: `mutated_boarding_order` works technically, but `boarding_queue` or `remaining_boarding_order` is clearer.
+- The current code works, but the next improvement phase should focus on readability and function structure.
+
+### Git / workflow
+
+- Performed final checks before pushing the working version.
+- Pushed the trend interpretation version before beginning the cleanup/refactor phase.
+- Decided to separate feature completion from cleanup work.
+
+### Reflections
+
+- The `interpret_strategy()` task was large and difficult, but useful.
+- It forced the use of dictionaries, stored results, trend logic, and output generation together.
+- The task made it clear that the next bottleneck is code hygiene, not core logic.
+- Current pattern:
+  - logic is ahead of coding cleanliness
+  - the code works
+  - the next phase is making the code easier to read and maintain
+
+### Next steps
+
+- Start Day 11 with cleanup/refactoring.
+- Improve unclear variable names.
+- Replace manual sequence-building logic where cleaner built-in patterns exist.
+- Consider renaming:
+  - `mutated_boarding_order`
+  - `adjust_wait_time`
+  - unclear temporary variables like `z`
+- Later split long functions, especially `interpret_strategy()`, into smaller helper functions.

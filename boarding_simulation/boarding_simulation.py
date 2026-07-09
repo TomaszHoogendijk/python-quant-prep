@@ -12,17 +12,16 @@ def simulate_boarding(num_rows: int, boarding_order: list, sit_time: int):
     aisle = [""]*(num_rows+1)
     time_stamps[time] = aisle.copy()
     wait_time = {}
-    state = True
-    mutated_boarding_order = boarding_order.copy()
-    while state==True:
-        adjust_wait_time = {}
+    remaining_boarding_order = boarding_order.copy()
+    while True:
+        updated_wait_time = {}
         for i in wait_time: # Update wait times before movement, so seated passengers block this round.
-                wait_time[i] -=1
+                wait_time[i] -= 1
                 if wait_time[i] == -1:
                     aisle[i] = ""
                 else:
-                    adjust_wait_time[i] = wait_time[i]
-        wait_time = adjust_wait_time
+                    updated_wait_time[i] = wait_time[i]
+        wait_time = updated_wait_time
         for position in range(num_rows-1,-1,-1): # Move backwards so passengers can not move more than 1 position in a round
             if aisle[position+1] == "" and aisle[position] != "" and aisle[position] != position:
                 aisle[position+1] = aisle[position]
@@ -30,34 +29,31 @@ def simulate_boarding(num_rows: int, boarding_order: list, sit_time: int):
                 if aisle[position+1] == position+1:
                     wait_time[position+1] = sit_time
         time += 1
-        if aisle[0] == "" and mutated_boarding_order!=[]:
-            aisle[0] = mutated_boarding_order[0]
-            mutated_boarding_order.pop(0)
+        if aisle[0] == "" and remaining_boarding_order!=[]:
+            aisle[0] = remaining_boarding_order[0]
+            remaining_boarding_order.pop(0)
         time_stamps[time] = aisle.copy()
-        if all(x == "" for x in aisle) and mutated_boarding_order == []:
-            state = False
+        if all(x == "" for x in aisle) and remaining_boarding_order == []:
+            break
     total_time = max(time_stamps)
     return time_stamps, wait_time, total_time
 
+
 def front_to_back_order(num_rows: int) -> list:
-    order = []
-    for i in range(1, num_rows+1):
-        order.append(i)
+    order = list(range(1,num_rows+1))
     return order
     
 def back_to_front_order(num_rows: int) -> list:
-    order = []
-    for i in range(num_rows, 0,-1):
-        order.append(i)
+    order = list(range(num_rows,0,-1))
     return order
 
-def random_boarding_order(num_rows: int):
-    order = []
-    while len(order)<num_rows:
-        x = random.randint(1,num_rows)
-        if x not in order:
-            order.append(x)
+def random_boarding_order(num_rows: int) -> list:
+    order = random.sample(range(1,num_rows+1),num_rows)
     return order
+
+print(front_to_back_order(6))
+print(back_to_front_order(6))
+print(random_boarding_order(6))
 
 def average_boarding_time(num_rows: int, sit_time: int, num_trials: int, strategy):
     total_time = 0
@@ -264,17 +260,18 @@ def test_strategies() -> str:
 def test_simulation() -> str:
     boarding_order_front = [1,2]
     front_test = boarding_order_front.copy()
-    assert(simulate_boarding(1,[1],0))[2] == 3 
-    assert(simulate_boarding(1,[1],1))[2] == 4
-    assert(simulate_boarding(2,[1,2],0))[2] == 5
-    assert(simulate_boarding(2,[2,1],0))[2] == 4
-    assert(simulate_boarding(2,boarding_order_front,1))[2] == 7
+    assert simulate_boarding(1,[1],0)[1] == {}
+    assert simulate_boarding(1,[1],0)[2] == 3 
+    assert simulate_boarding(1,[1],1)[2] == 4
+    assert simulate_boarding(2,[1,2],0)[2] == 5
+    assert simulate_boarding(2,[2,1],0)[2] == 4
+    assert simulate_boarding(2,boarding_order_front,1)[2] == 7
     assert(boarding_order_front) == front_test
     return "Simulation tests passed"
     
 
-if __name__ == "__main__":
-    results = greater_compare_strategies([5, 10, 20, 40],[0, 1, 2, 3],10)[0]
+if __name__ == "__main__" and 1 == 0:
+    results = greater_compare_strategies([5, 10, 20, 40],[0, 1, 2, 3],10)
     for line in results:
         print(line)
     print(test_strategies())
