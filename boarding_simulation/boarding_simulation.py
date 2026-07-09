@@ -94,7 +94,6 @@ def plot_strategy_rows(results: dict, fixed_sit_time: int) -> None:
     y_back = []
     y_random = []
     for value in results.values():
-        print(value)
         if value["sit_time"] == fixed_sit_time:
             x.append(value["rows"])
             y_front.append(value["front_to_back_order"])
@@ -108,7 +107,7 @@ def plot_strategy_rows(results: dict, fixed_sit_time: int) -> None:
     plt.legend()
     plt.show()
 
-def plot_strategy_sit_time(results, fixed_rows):
+def plot_strategy_sit_time(results: dict, fixed_rows: int) -> None:
     x = []
     y_front = []
     y_back = []
@@ -128,71 +127,71 @@ def plot_strategy_sit_time(results, fixed_rows):
     plt.show()
 
 def interpret_strategy(results):
-    max_difference = 0
-    min_difference = 10000
-    fixed_rows = {}
-    fixed_sit_time = {}
-    wins = {"front": 0, "back": 0, "random": 0}
-    for test in results.values():
-        print(f"\nRows: {test['rows']}, sit_time: {test['sit_time']}")
-        front = test["front_to_back_order"]
-        back = test["back_to_front_order"]
-        random = test["random_boarding_order"]
-        scores = {"front": front,
-                  "back": back,
-                  "random": random}
-        worst_strategy = max(scores, key=scores.get)
-        best_strategy = min(scores, key=scores.get)
-        difference = scores[worst_strategy]-scores[best_strategy]
+    max_worst_best_gap = float('-inf')
+    min_worst_best_gap = float('inf')
+    fixed_rows_gaps = {}
+    fixed_sit_time_gaps = {}
+    wins_count = {"front": 0, "back": 0, "random": 0}
+    for result in results.values():
+        print(f"\nRows: {result['rows']}, sit_time: {result['sit_time']}")
+        front = result["front_to_back_order"]
+        back = result["back_to_front_order"]
+        random = result["random_boarding_order"]
+        average_time_per_strategy = {"front": front,
+                                     "back": back,
+                                     "random": random}
+        worst_strategy = max(average_time_per_strategy, key=average_time_per_strategy.get)
+        best_strategy = min(average_time_per_strategy, key=average_time_per_strategy.get)
+        worst_best_gap = average_time_per_strategy[worst_strategy]-average_time_per_strategy[best_strategy]
         best_script = {"front": f"Best strategy: front_to_back_order, {front}", 
                        "back": f"Best strategy: back_to_front_order, {back}", 
                        "random": f"Best strategy: random_boarding_order, {random}"}
         worst_script = {"front": f"Worst strategy: front_to_back_order, {front}", 
                        "back": f"Worst strategy: back_to_front_order, {back}", 
                        "random": f"Worst strategy: random_boarding_order, {random}"}
-        if test['rows'] == 20:
-            fixed_rows[test['sit_time']] = difference
-        if test['sit_time'] == 1:
-            fixed_sit_time[test['rows']] = difference
-        if difference>max_difference:
-            max_difference = difference
-            largest_gap = f"Largest gap happened at rows = {test['rows']}, sit_time = {test['sit_time']}"
-        if min_difference>difference:
-            min_difference = difference
-            smallest_gap = f"Smallest gap happened at rows = {test['rows']}, sit_time = {test['sit_time']}"
+        if result['rows'] == 20:
+            fixed_rows_gaps[result['sit_time']] = worst_best_gap
+        if result['sit_time'] == 1:
+            fixed_sit_time_gaps[result['rows']] = worst_best_gap
+        if worst_best_gap>max_worst_best_gap:
+            max_worst_best_gap = worst_best_gap
+            largest_gap = f"Largest gap happened at rows = {result['rows']}, sit_time = {result['sit_time']}"
+        if min_worst_best_gap>worst_best_gap:
+            min_worst_best_gap = worst_best_gap
+            smallest_gap = f"Smallest gap happened at rows = {result['rows']}, sit_time = {result['sit_time']}"
         print(best_script[best_strategy])
-        wins[best_strategy]+=1
+        wins_count[best_strategy]+=1
         print(worst_script[worst_strategy])
-        print(f"Gap: {difference}")
-        print(f"Random gap from best: {round(random-scores[best_strategy],2)}")
-    difference_prev_sit_time = None
+        print(f"Gap: {worst_best_gap}")
+        print(f"Random gap from best: {round(random-average_time_per_strategy[best_strategy],2)}")
+    worst_best_gap_prev_sit_time = None
     gap_fixed_sit_time = []
     total_gap_sit_time = 0
     score_fixed_sit_time = 0
-    for difference in fixed_sit_time.values():
-        if difference_prev_sit_time is not None:
-            gap_difference_sit_time = difference - difference_prev_sit_time
+    for worst_best_gap in fixed_sit_time_gaps.values():
+        if worst_best_gap_prev_sit_time is not None:
+            gap_difference_sit_time = worst_best_gap - worst_best_gap_prev_sit_time
             gap_fixed_sit_time.append(gap_difference_sit_time)
             total_gap_sit_time += gap_difference_sit_time
-            if difference>difference_prev_sit_time:
+            if worst_best_gap>worst_best_gap_prev_sit_time:
                 score_fixed_sit_time += 1
-            elif difference_prev_sit_time>difference:
+            elif worst_best_gap_prev_sit_time>worst_best_gap:
                 score_fixed_sit_time -= 1
-        difference_prev_sit_time = difference
-    difference_prev_rows = None
+        worst_best_gap_prev_sit_time = worst_best_gap
+    worst_best_gap_prev_rows = None
     gap_fixed_rows = []
     total_gap_rows = 0  
     score_fixed_rows = 0    
-    for difference in fixed_rows.values():
-        if difference_prev_rows is not None:
-            gap_difference_rows = difference - difference_prev_rows
+    for worst_best_gap in fixed_rows_gaps.values():
+        if worst_best_gap_prev_rows is not None:
+            gap_difference_rows = worst_best_gap - worst_best_gap_prev_rows
             gap_fixed_rows.append(gap_difference_rows)
             total_gap_rows += gap_difference_rows
-            if difference>difference_prev_rows:
+            if worst_best_gap>worst_best_gap_prev_rows:
                 score_fixed_rows += 1
-            elif difference_prev_rows>difference:
+            elif worst_best_gap_prev_rows>worst_best_gap:
                 score_fixed_rows -= 1
-        difference_prev_rows = difference
+        worst_best_gap_prev_rows = worst_best_gap
 
     gap_fixed_rows_script = {
     "increasing": "Within the rows = 20 slice, the strategy gap consistently increases as sit_time increases.\nThis suggests boarding strategy matters more when passengers block the aisle longer.",
@@ -237,10 +236,10 @@ def interpret_strategy(results):
         else:
             gap_fixed_sit_time_result = "mostly decreasing"
 
-    winner = max(wins, key=wins.get)
-    won_script  = {"front": f"Front_to_back_order won {wins[winner]}/{sum(wins.values())} settings", 
-                       "back": f"Back_to_front_order won {wins[winner]}/{sum(wins.values())} settings", 
-                       "random": f"Random_boarding_order won {wins[winner]}/{sum(wins.values())} settings"}
+    winner = max(wins_count, key=wins_count.get)
+    won_script  = {"front": f"Front_to_back_order won {wins_count[winner]}/{sum(wins_count.values())} settings", 
+                       "back": f"Back_to_front_order won {wins_count[winner]}/{sum(wins_count.values())} settings", 
+                       "random": f"Random_boarding_order won {wins_count[winner]}/{sum(wins_count.values())} settings"}
     print("\n----------------------------------------------------------------")
     print(f"\nOverall summary \n\n{won_script[winner]} \n\n{largest_gap} \n{smallest_gap}")
     print(f"\n{gap_fixed_sit_time_script[gap_fixed_sit_time_result]} \n\n{gap_fixed_rows_script[gap_fixed_rows_result]}")
