@@ -126,7 +126,7 @@ def plot_strategy_sit_time(results: dict, fixed_rows: int) -> None:
     plt.legend()
     plt.show()
 
-def interpret_strategy_per_trial(results):
+def interpret_strategy_per_setting(results):
     max_worst_best_gap = float('-inf')
     min_worst_best_gap = float('inf')
     fixed_rows_gaps = {}
@@ -164,20 +164,20 @@ def interpret_strategy_per_trial(results):
         print(worst_script[worst_strategy])
         print(f"Gap: {worst_best_gap}")
         print(f"Random gap from best: {round(random-average_time_per_strategy[best_strategy],2)}")
-    summary_interpretation = {}
-    summary_interpretation["wins_count"] = wins_count
-    summary_interpretation["fixed_rows_gaps"] = fixed_rows_gaps
-    summary_interpretation["fixed_sit_time_gaps"] = fixed_sit_time_gaps
-    summary_interpretation["largest_gap"] = largest_gap
-    summary_interpretation["smallest_gap"] = smallest_gap
-    return summary_interpretation
+    interpretation_data = {}
+    interpretation_data["wins_count"] = wins_count
+    interpretation_data["fixed_rows_gaps"] = fixed_rows_gaps
+    interpretation_data["fixed_sit_time_gaps"] = fixed_sit_time_gaps
+    interpretation_data["largest_gap"] = largest_gap
+    interpretation_data["smallest_gap"] = smallest_gap
+    return interpretation_data
     
-def interpret_strategy_overall(summary_interpretation: dict):
-    wins_count = summary_interpretation["wins_count"] 
-    fixed_rows_gaps = summary_interpretation["fixed_rows_gaps"] 
-    fixed_sit_time_gaps = summary_interpretation["fixed_sit_time_gaps"]
-    largest_gap = summary_interpretation["largest_gap"] 
-    smallest_gap = summary_interpretation["smallest_gap"]   
+def interpret_strategy_overall(interpretation_data: dict):
+    wins_count = interpretation_data["wins_count"] 
+    fixed_rows_gaps = interpretation_data["fixed_rows_gaps"] 
+    fixed_sit_time_gaps = interpretation_data["fixed_sit_time_gaps"]
+    largest_gap = interpretation_data["largest_gap"] 
+    smallest_gap = interpretation_data["smallest_gap"]   
     worst_best_gap_prev_sit_time = None
     gap_fixed_sit_time = []
     total_gap_sit_time = 0
@@ -295,7 +295,7 @@ if __name__ == "__main__":
     print(test_simulation())
     plot_strategy_rows(results, fixed_sit_time=1)
     plot_strategy_sit_time(results, fixed_rows=10)
-    summary = interpret_strategy_per_trial(results)
+    summary = interpret_strategy_per_setting(results)
     interpret_strategy_overall(summary)
 
     
