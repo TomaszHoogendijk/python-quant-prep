@@ -39,7 +39,6 @@ def simulate_boarding(num_rows: int, boarding_order: list[int], sit_time: int) -
     total_time = max(time_stamps)
     return time_stamps, wait_time, total_time
 
-
 def front_to_back_order(num_rows: int) -> list:
     order = list(range(1, num_rows+1))
     return order
@@ -52,7 +51,6 @@ def random_boarding_order(num_rows: int) -> list:
     order = random.sample(range(1, num_rows+1), num_rows)
     return order
 
-
 def average_boarding_time(num_rows: int, sit_time: int, num_trials: int, order_function: Callable[[int], list[int]]) -> float:
     total_time_sum = 0
     for trial in range(num_trials):
@@ -61,8 +59,6 @@ def average_boarding_time(num_rows: int, sit_time: int, num_trials: int, order_f
         total_time_sum += trial_total_time
     average_trial_time = total_time_sum/num_trials
     return average_trial_time
-
-        
 
 def compare_strategies(num_rows: int, sit_time: int, num_trials: int) -> dict[str, float]:
     average_time_per_strategy = {}
@@ -191,34 +187,25 @@ def print_strategy_overall_report(interpretation_data: dict):
     largest_gap = interpretation_data["largest_gap"] 
     smallest_gap = interpretation_data["smallest_gap"]   
     worst_best_gap_prev_sit_time = None
-    gap_fixed_sit_time = []
-    total_gap_sit_time = 0
     score_fixed_sit_time = 0
+    comparison_count_sit_time = len(fixed_sit_time_gaps)-1
     for worst_best_gap in fixed_sit_time_gaps.values():
         if worst_best_gap_prev_sit_time is not None:
-            gap_difference_sit_time = worst_best_gap - worst_best_gap_prev_sit_time
-            gap_fixed_sit_time.append(gap_difference_sit_time)
-            total_gap_sit_time += gap_difference_sit_time
             if worst_best_gap>worst_best_gap_prev_sit_time:
                 score_fixed_sit_time += 1
             elif worst_best_gap_prev_sit_time>worst_best_gap:
                 score_fixed_sit_time -= 1
         worst_best_gap_prev_sit_time = worst_best_gap
     worst_best_gap_prev_rows = None
-    gap_fixed_rows = []
-    total_gap_rows = 0  
     score_fixed_rows = 0    
+    comparison_count_rows = len(fixed_rows_gaps)-1
     for worst_best_gap in fixed_rows_gaps.values():
         if worst_best_gap_prev_rows is not None:
-            gap_difference_rows = worst_best_gap - worst_best_gap_prev_rows
-            gap_fixed_rows.append(gap_difference_rows)
-            total_gap_rows += gap_difference_rows
             if worst_best_gap>worst_best_gap_prev_rows:
                 score_fixed_rows += 1
             elif worst_best_gap_prev_rows>worst_best_gap:
                 score_fixed_rows -= 1
         worst_best_gap_prev_rows = worst_best_gap
-
     gap_fixed_rows_script = {
     "increasing": "Within the rows = 20 slice, the strategy gap consistently increases as sit_time increases.\nThis suggests boarding strategy matters more when passengers block the aisle longer.",
     "mostly increasing": "Within the rows = 20 slice, the strategy gap mostly increases as sit_time increases.\nThis suggests boarding strategy matters more when passengers block the aisle longer.",
@@ -226,7 +213,6 @@ def print_strategy_overall_report(interpretation_data: dict):
     "mostly decreasing": "Within the rows = 20 slice, the strategy gap mostly decreases as sit_time increases.\nThis suggests boarding strategy matters less when passengers block the aisle longer.",
     "decreasing": "Within the rows = 20 slice, the strategy gap consistently decreases as sit_time increases.\nThis suggests boarding strategy matters less when passengers block the aisle longer."
     }
-
     gap_fixed_sit_time_script = {
     "increasing": "Within the sit_time = 1 slice, the strategy gap consistently increases as rows increase.\nThis suggests boarding strategy matters more for larger planes.",
     "mostly increasing": "Within the sit_time = 1 slice, the strategy gap mostly increases as rows increase.\nThis suggests boarding strategy matters more for larger planes.",
@@ -234,34 +220,30 @@ def print_strategy_overall_report(interpretation_data: dict):
     "mostly decreasing": "Within the sit_time = 1 slice, the strategy gap mostly decreases as rows increase.\nThis suggests boarding strategy matters less for larger planes.",
     "decreasing": "Within the sit_time = 1 slice, the strategy gap consistently decreases as rows increase.\nThis suggests boarding strategy matters less for larger planes."
     }
-
-    
     if score_fixed_rows>0:
-        if score_fixed_rows == len(gap_fixed_rows):
+        if score_fixed_rows == comparison_count_rows:
             gap_fixed_rows_result = "increasing"
         else:
             gap_fixed_rows_result = "mostly increasing"
     elif score_fixed_rows == 0:
         gap_fixed_rows_result = "neutral" 
     else:
-        if abs(score_fixed_rows) == len(gap_fixed_rows):
+        if abs(score_fixed_rows) == comparison_count_rows:
             gap_fixed_rows_result = "decreasing"
         else:
             gap_fixed_rows_result = "mostly decreasing"
-
     if score_fixed_sit_time>0:
-        if score_fixed_sit_time== len(gap_fixed_sit_time):
+        if score_fixed_sit_time== comparison_count_sit_time:
             gap_fixed_sit_time_result = "increasing"
         else:
             gap_fixed_sit_time_result = "mostly increasing"
     elif score_fixed_sit_time == 0:
         gap_fixed_sit_time_result = "neutral" 
     else:
-        if abs(score_fixed_sit_time) == len(gap_fixed_sit_time):
+        if abs(score_fixed_sit_time) == comparison_count_sit_time:
             gap_fixed_sit_time_result = "decreasing"
         else:
             gap_fixed_sit_time_result = "mostly decreasing"
-
     winner = max(wins_count, key=wins_count.get)
     won_script  = {"front": f"Front_to_back_order won {wins_count[winner]}/{sum(wins_count.values())} settings", 
                        "back": f"Back_to_front_order won {wins_count[winner]}/{sum(wins_count.values())} settings", 
@@ -269,8 +251,6 @@ def print_strategy_overall_report(interpretation_data: dict):
     print("\n----------------------------------------------------------------")
     print(f"\nOverall summary \n\n{won_script[winner]} \n\n{largest_gap} \n{smallest_gap}")
     print(f"\n{gap_fixed_sit_time_script[gap_fixed_sit_time_result]} \n\n{gap_fixed_rows_script[gap_fixed_rows_result]}")
-
-
 
 def test_strategies() -> str:
     result = compare_strategies(5,1,10)
@@ -285,7 +265,6 @@ def test_strategies() -> str:
     assert(set(result.keys())) == comparison_set
     return "All sanity tests passed."
 
-
 def test_simulation() -> str:
     boarding_order_front = [1,2]
     front_test = boarding_order_front.copy()
@@ -296,8 +275,7 @@ def test_simulation() -> str:
     assert simulate_boarding(2,[2,1],0)[2] == 4
     assert simulate_boarding(2,boarding_order_front,1)[2] == 7
     assert(boarding_order_front) == front_test
-    return "Simulation tests passed"
-    
+    return "Simulation tests passed"  
 
 if __name__ == "__main__":
     results, _ = greater_compare_strategies([5, 10, 20, 40],[0, 1, 2, 3],10)
