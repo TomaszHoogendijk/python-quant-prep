@@ -457,38 +457,100 @@ Boarding simulation cleanup/refactor phase.
   - per-setting analysis/reporting
   - overall summary/trend reporting
 
-### Rating-relevant notes
+### Remaining cleanup targets
 
-#### Evidence that should raise rating
-
-- Improved naming judgment.
-- Pushed back on an ambiguous suggested name and gave a better reasoned alternative.
-- Used Git more responsibly with smaller commits.
-- Started identifying structural problems in the code independently.
-- Maintained working functionality while cleaning.
-
-#### Evidence that should NOT raise rating too much
-
-- `interpret_strategy()` is still too long and messy.
-- Some logic is still hard-coded around `rows = 20` and `sit_time = 1`.
-- Trend classification is still embedded inside the reporting function.
-- Return types and data structures are still not fully clean.
-- No major new simulator feature was added today.
-
-### Remaining gaps
-
-- Split `interpret_strategy()` into smaller helper functions.
+- Split the interpretation logic into smaller helper functions.
 - Separate calculation from printing/reporting.
-- Clean trend classification logic.
-- Consider grouping returned summary state more cleanly instead of returning many loose values.
-- Add stronger tests around interpretation logic later.
+- Clean the repeated trend-classification logic.
+- Keep the simulator behavior unchanged while refactoring.
+- Add stronger tests around interpretation data later.
 - Improve exact type hints for result dictionaries later.
 
 ### Next step
 
-Start by splitting `interpret_strategy()` into:
+Continue refactoring the strategy interpretation code by separating data collection from printed reports.
 
-1. per-setting analysis/reporting
-2. overall summary/trend reporting
+---
 
-Do this in one small commit, then run the script and check the diff before pushing.
+## Day 12 — Interpretation refactor and trend cleanup
+
+### Date
+
+2026-07-10
+
+### Commit / project
+
+Boarding simulation interpretation refactor.
+
+### What works
+
+- Boarding simulator still runs end-to-end.
+- Strategy comparison still works across front-to-back, back-to-front, and random boarding.
+- Experiment grid still works across row counts and sit times.
+- Plotting functions still work.
+- Strategy interpretation still prints per-setting results and overall summaries.
+- Existing simulator and strategy sanity tests still pass.
+
+### What I changed
+
+- Split the old interpretation logic into clearer responsibilities:
+  - one function collects interpretation data
+  - one function prints the per-setting report
+  - one function prints the overall report
+- Renamed interpretation functions to use clearer action-based names:
+  - `collect_strategy_interpretation_data`
+  - `print_strategy_per_setting_report`
+  - `print_strategy_overall_report`
+- Removed printing from the data-collection function.
+- Kept per-setting reporting focused on local setting information:
+  - best strategy
+  - worst strategy
+  - strategy gap
+  - random gap from best
+- Kept overall logic focused on cross-setting information:
+  - win counts
+  - largest and smallest gaps
+  - fixed-row trend
+  - fixed-sit-time trend
+- Removed unused total-gap variables.
+- Removed unnecessary lists that only existed to count comparisons.
+- Replaced those lists with direct comparison counts for each trend slice.
+
+### What I debugged / understood independently
+
+- A function that both prints and returns data is harder to reason about.
+- Data collection and reporting are separate responsibilities.
+- Per-setting output should not contain overall experiment logic.
+- Largest/smallest gap tracking belongs to the overall summary, not to one setting.
+- Fixed-row and fixed-sit-time trend logic need separate comparison counts.
+- Storing intermediate values is not useful if they are only used to get a count.
+- Simpler state is better when the same result can be computed directly.
+
+### Concepts learned
+
+- Refactoring means preserving behavior while improving structure.
+- Function names should describe the action:
+  - `collect...` means return data
+  - `print...` means produce console output
+- A long function should be split by responsibility, not just by length.
+- Local analysis and overall analysis should be kept separate.
+- Removing unused variables makes code easier to read because it removes false meaning.
+- Trend classification only needs:
+  - a direction score
+  - a comparison count
+- Different experiment slices can have different numbers of comparisons.
+
+### Git / workflow
+
+- Ran the boarding simulation before committing.
+- Used `git status` and `git diff` before pushing.
+- Committed the interpretation refactor in small cleanup commits.
+- Fixed save/staging issues by using Save All and checking Git status more carefully.
+
+### Next steps
+
+- Clean the duplicated trend-classification logic.
+- Consider extracting a helper for classifying increasing/decreasing/neutral trends.
+- Sort fixed-row and fixed-sit-time gap dictionaries before comparing trend direction.
+- Fix the `for line in results` loop so it prints readable overview lines instead of dictionary keys.
+- Add a small test for `collect_strategy_interpretation_data`.
