@@ -408,7 +408,7 @@ Basic sanity tests now check:
 
 ### Date
 
-2026-07-09
+2026-07-10
 
 ### Commit / project
 
@@ -472,15 +472,15 @@ Continue refactoring the strategy interpretation code by separating data collect
 
 ---
 
-## Day 12 — Interpretation refactor and trend cleanup
+## Day 12 — Interpretation refactor, trend cleanup, and card probabilities
 
 ### Date
 
-2026-07-10
+2026-07-11
 
 ### Commit / project
 
-Boarding simulation interpretation refactor.
+Boarding simulation interpretation cleanup and probability experiment expansion.
 
 ### What works
 
@@ -488,12 +488,13 @@ Boarding simulation interpretation refactor.
 - Strategy comparison still works across front-to-back, back-to-front, and random boarding.
 - Experiment grid still works across row counts and sit times.
 - Plotting functions still work.
-- Strategy interpretation still prints per-setting results and overall summaries.
+- Strategy interpretation still prints per-setting reports and overall summaries.
 - Existing simulator and strategy sanity tests still pass.
+- A new card probability experiment can compare empirical simulation results with theoretical combinatorics results.
 
 ### What I changed
 
-- Split the old interpretation logic into clearer responsibilities:
+- Split the old strategy interpretation logic into clearer responsibilities:
   - one function collects interpretation data
   - one function prints the per-setting report
   - one function prints the overall report
@@ -507,7 +508,7 @@ Boarding simulation interpretation refactor.
   - worst strategy
   - strategy gap
   - random gap from best
-- Kept overall logic focused on cross-setting information:
+- Kept overall reporting focused on cross-setting information:
   - win counts
   - largest and smallest gaps
   - fixed-row trend
@@ -515,6 +516,11 @@ Boarding simulation interpretation refactor.
 - Removed unused total-gap variables.
 - Removed unnecessary lists that only existed to count comparisons.
 - Replaced those lists with direct comparison counts for each trend slice.
+- Cleaned the learning log so it stays focused on public project progress, concepts, and next steps.
+- Added a new `probability_experiments` folder for probability-focused scripts.
+- Added a card probability experiment file for card-hand probability calculations.
+- Built both an empirical simulation and a theoretical combinatorics calculation for card suit-count probabilities.
+- Added a main guard so the probability script can be run directly.
 
 ### What I debugged / understood independently
 
@@ -525,6 +531,10 @@ Boarding simulation interpretation refactor.
 - Fixed-row and fixed-sit-time trend logic need separate comparison counts.
 - Storing intermediate values is not useful if they are only used to get a count.
 - Simpler state is better when the same result can be computed directly.
+- `git diff` only shows unstaged tracked-file changes.
+- After staging changes, `git diff --cached` or `git diff --staged` shows what will go into the next commit.
+- A renamed file may appear as one deleted file and one untracked file until both sides are staged.
+- `git add -A` stages new files, modified files, deleted files, and renames across the whole repository.
 
 ### Concepts learned
 
@@ -539,13 +549,22 @@ Boarding simulation interpretation refactor.
   - a direction score
   - a comparison count
 - Different experiment slices can have different numbers of comparisons.
+- Empirical simulation can be used to approximate a probability.
+- Theoretical combinatorics can be used to calculate the exact probability.
+- Comparing empirical and theoretical results is a useful way to check probability reasoning.
+- `math.comb(...)` can calculate combinations directly.
+- `random.sample(...)` can sample cards without replacement.
+- A probability experiment folder can contain separate files for different probability domains, such as card probabilities and dice probabilities.
 
 ### Git / workflow
 
 - Ran the boarding simulation before committing.
-- Used `git status` and `git diff` before pushing.
+- Ran the card probability experiment before committing.
+- Used `git status`, `git diff`, and staged-diff checks before pushing.
+- Used `git add -A` to stage renames, new files, modified files, and deletions.
 - Committed the interpretation refactor in small cleanup commits.
-- Fixed save/staging issues by using Save All and checking Git status more carefully.
+- Committed the learning-log cleanup separately.
+- Added the card probability experiment as a separate probability-focused script.
 
 ### Next steps
 
@@ -554,3 +573,5 @@ Boarding simulation interpretation refactor.
 - Sort fixed-row and fixed-sit-time gap dictionaries before comparing trend direction.
 - Fix the `for line in results` loop so it prints readable overview lines instead of dictionary keys.
 - Add a small test for `collect_strategy_interpretation_data`.
+- Add simple validation to the card probability experiment for impossible inputs.
+- Consider adding more probability experiments later, such as dice probabilities or urn probabilities.
