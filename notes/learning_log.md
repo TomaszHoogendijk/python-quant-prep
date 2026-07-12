@@ -315,7 +315,7 @@ Basic sanity tests now check:
 
 ---
 
-## Day 10 — 09/07/2026
+## Day 10 — 08/07/2026
 
 ### Completed
 
@@ -404,11 +404,7 @@ Basic sanity tests now check:
 
 ---
 
-## Day 11 — Cleanup, naming, and refactor preparation
-
-### Date
-
-2026-07-10
+## Day 11 — 09/07/2026 — Cleanup, naming, and refactor preparation
 
 ### Commit / project
 
@@ -472,15 +468,11 @@ Continue refactoring the strategy interpretation code by separating data collect
 
 ---
 
-## Day 12 — Interpretation refactor, trend cleanup, and card probabilities
-
-### Date
-
-2026-07-11
+## Day 12 — 10/07/2026 — Interpretation refactor and trend cleanup
 
 ### Commit / project
 
-Boarding simulation interpretation cleanup and probability experiment expansion.
+Boarding simulation interpretation refactor.
 
 ### What works
 
@@ -488,13 +480,12 @@ Boarding simulation interpretation cleanup and probability experiment expansion.
 - Strategy comparison still works across front-to-back, back-to-front, and random boarding.
 - Experiment grid still works across row counts and sit times.
 - Plotting functions still work.
-- Strategy interpretation still prints per-setting reports and overall summaries.
+- Strategy interpretation still prints per-setting results and overall summaries.
 - Existing simulator and strategy sanity tests still pass.
-- A new card probability experiment can compare empirical simulation results with theoretical combinatorics results.
 
 ### What I changed
 
-- Split the old strategy interpretation logic into clearer responsibilities:
+- Split the old interpretation logic into clearer responsibilities:
   - one function collects interpretation data
   - one function prints the per-setting report
   - one function prints the overall report
@@ -516,25 +507,16 @@ Boarding simulation interpretation cleanup and probability experiment expansion.
 - Removed unused total-gap variables.
 - Removed unnecessary lists that only existed to count comparisons.
 - Replaced those lists with direct comparison counts for each trend slice.
-- Cleaned the learning log so it stays focused on public project progress, concepts, and next steps.
-- Added a new `probability_experiments` folder for probability-focused scripts.
-- Added a card probability experiment file for card-hand probability calculations.
-- Built both an empirical simulation and a theoretical combinatorics calculation for card suit-count probabilities.
-- Added a main guard so the probability script can be run directly.
 
 ### What I debugged / understood independently
 
 - A function that both prints and returns data is harder to reason about.
 - Data collection and reporting are separate responsibilities.
 - Per-setting output should not contain overall experiment logic.
-- Largest/smallest gap tracking belongs to the overall summary, not to one setting.
+- Largest and smallest gap tracking belongs to the overall summary, not to one setting.
 - Fixed-row and fixed-sit-time trend logic need separate comparison counts.
-- Storing intermediate values is not useful if they are only used to get a count.
-- Simpler state is better when the same result can be computed directly.
-- `git diff` only shows unstaged tracked-file changes.
-- After staging changes, `git diff --cached` or `git diff --staged` shows what will go into the next commit.
-- A renamed file may appear as one deleted file and one untracked file until both sides are staged.
-- `git add -A` stages new files, modified files, deleted files, and renames across the whole repository.
+- Storing intermediate values is unnecessary when they are only used to calculate a count.
+- Simpler state makes refactored code easier to understand.
 
 ### Concepts learned
 
@@ -542,36 +524,99 @@ Boarding simulation interpretation cleanup and probability experiment expansion.
 - Function names should describe the action:
   - `collect...` means return data
   - `print...` means produce console output
-- A long function should be split by responsibility, not just by length.
+- A long function should be split by responsibility, not only by length.
 - Local analysis and overall analysis should be kept separate.
-- Removing unused variables makes code easier to read because it removes false meaning.
+- Removing unused variables removes false meaning from the code.
 - Trend classification only needs:
   - a direction score
   - a comparison count
 - Different experiment slices can have different numbers of comparisons.
-- Empirical simulation can be used to approximate a probability.
-- Theoretical combinatorics can be used to calculate the exact probability.
-- Comparing empirical and theoretical results is a useful way to check probability reasoning.
-- `math.comb(...)` can calculate combinations directly.
-- `random.sample(...)` can sample cards without replacement.
-- A probability experiment folder can contain separate files for different probability domains, such as card probabilities and dice probabilities.
 
 ### Git / workflow
 
 - Ran the boarding simulation before committing.
-- Ran the card probability experiment before committing.
-- Used `git status`, `git diff`, and staged-diff checks before pushing.
-- Used `git add -A` to stage renames, new files, modified files, and deletions.
+- Used `git status` and `git diff` before pushing.
 - Committed the interpretation refactor in small cleanup commits.
-- Committed the learning-log cleanup separately.
-- Added the card probability experiment as a separate probability-focused script.
+- Fixed save and staging issues by using Save All and checking Git status carefully.
 
 ### Next steps
 
 - Clean the duplicated trend-classification logic.
-- Consider extracting a helper for classifying increasing/decreasing/neutral trends.
+- Consider extracting a helper for classifying increasing, decreasing, or neutral trends.
 - Sort fixed-row and fixed-sit-time gap dictionaries before comparing trend direction.
 - Fix the `for line in results` loop so it prints readable overview lines instead of dictionary keys.
 - Add a small test for `collect_strategy_interpretation_data`.
-- Add simple validation to the card probability experiment for impossible inputs.
-- Consider adding more probability experiments later, such as dice probabilities or urn probabilities.
+
+---
+
+## Day 13 — 11/07/2026 — Probability experiments
+
+### Commit / project
+
+Card-hand probability and consecutive-seating Monte Carlo experiments.
+
+### What works
+
+- A card probability experiment compares an empirical Monte Carlo estimate with an exact theoretical probability.
+- A consecutive-seating simulation estimates the probability that one fixed group of people sits together in a random seating arrangement.
+- Both probability experiments run independently from the boarding simulator.
+
+### What I changed
+
+- Added `probability_experiments/card_probabilities.py`.
+- Built an empirical card-hand probability function using `random.sample(..., counts=...)`.
+- Built a theoretical card-hand probability function using `math.comb(...)`.
+- Added a main guard so the card probability script can be run directly.
+- Renamed the card probability file to better describe its purpose.
+- Added a Monte Carlo simulation for consecutive seating.
+- Reduced the seating representation to:
+  - `"success"` for members of the designated group
+  - `"failure"` for everyone else
+- Checked consecutive windows using list slicing.
+- Added `break` so each successful seating arrangement is counted only once.
+- Added input validation using `raise ValueError`.
+- Renamed the success counter to `successful_trials`.
+- Fixed the spelling of `"success"`.
+- Ran the consecutive-seating simulation with `(14, 3, 100_000)` and checked that the result was close to the theoretical probability `3/91`.
+- Committed and pushed the probability experiments.
+
+### What I debugged / understood independently
+
+- The card-hand probability can be approached both empirically and theoretically.
+- Sampling card suits without replacement can be modelled with `random.sample(..., counts=...)`.
+- The theoretical card-hand probability is calculated using combinations for the requested number of cards from each suit.
+- The identities and internal order of the designated people do not affect the consecutive-seating event.
+- Only the seat positions occupied by the designated group matter.
+- Replacing distinct people with `"success"` and `"failure"` labels preserves the relevant probability.
+- Direct list membership does not check whether one list appears as a consecutive sublist.
+- A sliding-window loop can inspect every possible consecutive block.
+- `break` prevents one trial from being counted more than once.
+
+### Concepts learned
+
+- Monte Carlo simulation can approximate probabilities.
+- Combinatorics can calculate exact probabilities.
+- Comparing empirical and theoretical results helps verify probability reasoning.
+- A probability model can often be simplified by removing information that does not affect the event.
+- `math.comb(...)` calculates combinations.
+- `random.sample(..., counts=...)` can sample from repeated categories without replacement.
+- List slicing can be used to inspect fixed-length consecutive windows.
+- `raise ValueError` is appropriate for invalid function inputs.
+- Probability experiments can be separated into domain-specific files inside one folder.
+
+### Git / workflow
+
+- Clarified that `git diff` shows unstaged tracked-file changes.
+- Used `git diff --cached` or `git diff --staged` to inspect staged changes.
+- Used `git diff --cached --stat` for a compact staged-change summary.
+- Used `git add -A` to stage new, modified, and deleted files across the repository.
+- Learned that a renamed file can initially appear as one deleted file and one untracked file until both sides are staged.
+- Ran both probability scripts before committing.
+- Committed and pushed the completed Day 13 work.
+
+### Next steps
+
+- Consider adding the general theoretical probability for consecutive seating.
+- Add small automated checks for the probability experiments.
+- Continue the remaining boarding-simulator interpretation cleanup.
+- Add another probability experiment only when it introduces a genuinely new modelling idea.
