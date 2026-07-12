@@ -1,5 +1,6 @@
 import random
 import math
+import matplotlib.pyplot as plt
 from collections import Counter
 
 
@@ -36,8 +37,25 @@ def room_assignment_theoretical(number_of_rooms: int, number_of_people: int, ass
         favorable_outcomes *= math.comb(remaining_rooms, room_count)
         remaining_rooms -= room_count
     return favorable_outcomes/total_outcomes
-    
-        
+
+def plot_theoretical_empirical(number_of_rooms: int, number_of_people: int, assignment: list[int], num_trials: int) -> None:
+    theoretical_result = room_assignment_theoretical(number_of_rooms, number_of_people, assignment)
+    x = list(range(1,num_trials+1,5))
+    y_t = [theoretical_result]*len(x)
+    y_e = []
+    for trial in range(1, num_trials+1,5):
+        empirical_result = room_assignment_empirical(number_of_rooms, number_of_people, assignment, trial)
+        y_e.append(empirical_result)
+    plt.plot(x, y_e, label="Empirical", color="green", marker="o", linestyle="None")
+    plt.plot(x, y_t, label="Theoretical", color="blue", marker="o", linestyle="-")
+    plt.xlabel("Number of trials")
+    plt.ylabel("Probability of chosen outcome")
+    plt.title("Empirical vs theoretical comparison")
+    plt.legend()
+    plt.show()
+
+
 if __name__ == "__main__":
     print(room_assignment_empirical(4,8,[3,3,1,1],10000))
     print(room_assignment_theoretical(4,8,[3,3,1,1]))
+    plot_theoretical_empirical(4,8,[3,3,1,1],1000)
