@@ -40,14 +40,14 @@ def room_assignment_theoretical(number_of_rooms: int, number_of_people: int, ass
 
 def plot_theoretical_empirical(number_of_rooms: int, number_of_people: int, assignment: list[int], num_trials: int) -> None:
     theoretical_result = room_assignment_theoretical(number_of_rooms, number_of_people, assignment)
-    x = list(range(1,num_trials+1,5))
-    y_t = [theoretical_result]*len(x)
-    y_e = []
+    trial_counts = list(range(1,num_trials+1,5))
+    theoretical_probabilities = [theoretical_result]*len(trial_counts)
+    empirical_probabilities = []
     for trial in range(1, num_trials+1,5):
         empirical_result = room_assignment_empirical(number_of_rooms, number_of_people, assignment, trial)
-        y_e.append(empirical_result)
-    plt.plot(x, y_e, label="Empirical", color="green", marker="o", linestyle="None")
-    plt.plot(x, y_t, label="Theoretical", color="blue", marker="o", linestyle="-")
+        empirical_probabilities.append(empirical_result)
+    plt.plot(trial_counts, empirical_probabilities, label="Empirical", color="green", marker="o", linestyle="None")
+    plt.plot(trial_counts, theoretical_probabilities, label="Theoretical", color="blue", marker="o", linestyle="-")
     plt.xlabel("Number of trials")
     plt.ylabel("Probability of chosen outcome")
     plt.title("Empirical vs theoretical comparison")
@@ -58,4 +58,4 @@ def plot_theoretical_empirical(number_of_rooms: int, number_of_people: int, assi
 if __name__ == "__main__":
     print(room_assignment_empirical(4,8,[3,3,1,1],10000))
     print(room_assignment_theoretical(4,8,[3,3,1,1]))
-    plot_theoretical_empirical(4,8,[3,3,1,1],1000)
+    plot_theoretical_empirical(4,8,[3,3,1,1],5000)

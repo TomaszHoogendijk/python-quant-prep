@@ -620,3 +620,109 @@ Card-hand probability and consecutive-seating Monte Carlo experiments.
 - Add small automated checks for the probability experiments.
 - Continue the remaining boarding-simulator interpretation cleanup.
 - Add another probability experiment only when it introduces a genuinely new modelling idea.
+
+---
+
+## Day 14 — 12/07/2026 — Room-assignment probability experiment
+
+### Commit / project
+
+General empirical and theoretical room-assignment probability experiment.
+
+### What works
+
+- An empirical Monte Carlo simulation estimates the probability of a specified room-occupancy pattern.
+- A generalized theoretical function calculates the exact probability of the same occupancy pattern.
+- Occupancy patterns with the same values in different room orders are treated as equivalent.
+- A plot compares independent empirical estimates at increasing trial counts with the exact theoretical probability.
+
+### What I changed
+
+- Added `probability_experiments/room_assignment.py`.
+- Built `room_assignment_empirical(...)`.
+- Modelled each person as independently selecting one of the labeled rooms using `random.choices(...)`.
+- Counted the number of people assigned to each room using `list.count(...)`.
+- Stored each trial as a room-occupancy list.
+- Used sorted occupancy lists so patterns such as `[3, 3, 1, 1]` and `[3, 1, 3, 1]` are treated as equivalent.
+- Added validation that:
+  - the occupancy-list length equals the number of rooms
+  - the occupancy values sum to the number of people
+- Built `room_assignment_theoretical(...)`.
+- Counted assignments for one fixed room order using successive `math.comb(...)` calculations.
+- Used `Counter` to count repeated occupancy sizes.
+- Calculated the number of distinct ways occupancy sizes can be assigned to labeled rooms.
+- Divided favorable assignments by `number_of_rooms ** number_of_people`.
+- Added `plot_theoretical_empirical(...)`.
+- Plotted independent empirical estimates against a constant theoretical reference line.
+- Used unconnected markers for the independent empirical estimates.
+- Evaluated every fifth trial count to reduce runtime and visual clutter.
+
+### What I debugged / understood independently
+
+- For eight distinct people and four labeled rooms, the total number of possible assignments is `4 ** 8`.
+- A fixed room order and an occupancy pattern in any room order are different events.
+- Repeated occupancy values require counting distinct room arrangements without overcounting identical values.
+- For `[3, 3, 1, 1]`, the distinct room-order factor is:
+  - `math.comb(4, 2) * math.comb(2, 2)`
+- Assigning `remaining_assignment = assignment` creates two references to the same list.
+- Mutating one reference therefore also mutates the original list.
+- Using `assignment.copy()` prevents this aliasing bug.
+- Printing intermediate results helped isolate which section of the theoretical function worked and why the later loop did not run.
+- Calculating fresh empirical estimates for every trial count creates rapidly increasing runtime.
+- Independent estimates should not be connected as though they form one cumulative simulation path.
+
+### Concepts learned
+
+- `random.choices(...)` samples with replacement.
+- `list.count(...)` counts occurrences of a value.
+- `Counter` can represent occupancy multiplicities.
+- Sequential combinations can count assignments of distinct people into labeled groups.
+- Repeated group sizes require a separate count for their distinct arrangements.
+- A shallow copy is sufficient for a list containing immutable integers.
+- Comparing empirical and theoretical probabilities helps validate both simulation code and combinatorial reasoning.
+- Plot design should reflect whether observations are independent or cumulative.
+
+### Git / workflow
+
+- Ran the room-assignment script before committing.
+- Used intermediate print statements during debugging and removed them after identifying the mutation problem.
+- Committed and pushed the working room-assignment experiment and comparison plot.
+
+### Next steps
+
+- Improve remaining abbreviated variable names.
+- Test additional occupancy patterns.
+- Add automated probability checks.
+- Consider a genuinely cumulative convergence plot later.
+
+---
+
+## Day 15 — 13/07/2026 — Room-assignment naming cleanup
+
+### Completed
+
+- Improved names in the empirical-versus-theoretical plotting function.
+- Replaced abbreviated plotting variables with:
+  - `trial_counts`
+  - `theoretical_probabilities`
+  - `empirical_probabilities`
+- Renamed the occupancy-multiplicity dictionary to `room_count_by_occupancy`.
+- Renamed its loop value to `room_count`.
+- Kept empirical estimates as unconnected markers.
+- Kept the theoretical probability as a constant reference line.
+- Ran the script after the naming cleanup.
+- Reviewed the working-tree changes before committing.
+
+### Concepts reinforced
+
+- Variable names should describe mathematical meaning rather than only their technical type or axis.
+- Dictionary names should make the meaning of both keys and values understandable.
+- Independent simulation estimates should not automatically be connected by a line.
+- Small cleanup commits are useful after a working feature has already been pushed.
+
+### Next steps
+
+- Add automated checks for several valid occupancy patterns.
+- Test patterns that include empty rooms.
+- Consider simplifying the fixed-order theoretical calculation after tests are in place.
+- Continue the remaining boarding-simulator interpretation cleanup.
