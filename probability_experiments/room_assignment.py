@@ -1,6 +1,7 @@
 import random
 import math
 import matplotlib.pyplot as plt
+import time
 from collections import Counter
 
 
@@ -56,6 +57,11 @@ def plot_theoretical_empirical(number_of_rooms: int, number_of_people: int, assi
 
 
 if __name__ == "__main__":
-    print(room_assignment_empirical(4,8,[3,3,1,1],10000))
+    start_time = time.perf_counter()
+    result = room_assignment_empirical(4,8,[3,3,1,1],10000000)
+    end_time = time.perf_counter()
+    run_time = end_time-start_time
+    print(result)
+    print(run_time)
     print(room_assignment_theoretical(4,8,[3,3,1,1]))
     plot_theoretical_empirical(4,8,[3,3,1,1],5000)

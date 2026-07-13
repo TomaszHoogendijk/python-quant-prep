@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 def room_assignment(num_rooms: int, num_people: int, assignment: list[int], num_trials: int) -> float:
     if (len(assignment) != num_rooms or sum(assignment) != num_people or num_people<1 or num_rooms<1 
@@ -18,5 +19,10 @@ def room_assignment(num_rooms: int, num_people: int, assignment: list[int], num_
 
 
 if __name__ == "__main__":
-    result = room_assignment(4,8,[3,3,1,1],1000000)
+    start_time = time.perf_counter()
+    result = room_assignment(4,8,[3,3,1,1],10000000)
+    end_time = time.perf_counter()
+    run_time = end_time-start_time
     print(result)
+    print(run_time)
+    
