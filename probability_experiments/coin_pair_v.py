@@ -2,26 +2,28 @@ import random
 import matplotlib.pyplot as plt
 
 def coin_pair_v(num_trials:int) -> float:
+    if num_trials<1:
+        raise ValueError("Invalid input")
     total_actions = 0
     for trial in range(num_trials):
         actions = 4
         desired_outcome = ["heads"]*4
-        result = random.choices(population=["heads","tails"],k=4)
-        while result != desired_outcome:
-            for index in range(len(result)):
-                if result[index] == "tails":
-                    result[index] = "heads"
+        coin_outcome = random.choices(population=["heads","tails"],k=4)
+        while coin_outcome != desired_outcome:
+            for index in range(len(coin_outcome)):
+                if coin_outcome[index] == "tails":
+                    coin_outcome[index] = "heads"
                     forbidden_index = index
                     break
-            for index in range(len(result)):
+            for index in range(len(coin_outcome)):
                 if index == forbidden_index:
                     continue
-                if "tails" not in result:
-                    result[index] = random.choice(["heads", "tails"])
+                if "tails" not in coin_outcome:
+                    coin_outcome[index] = random.choice(["heads", "tails"])
                     break
-                elif "tails" in result:
-                    if result[index] == "tails":
-                        result[index] = random.choice(["heads", "tails"])
+                elif "tails" in coin_outcome:
+                    if coin_outcome[index] == "tails":
+                        coin_outcome[index] = random.choice(["heads", "tails"])
                         break
             actions += 2
         total_actions += actions
@@ -29,6 +31,8 @@ def coin_pair_v(num_trials:int) -> float:
     return mean_actions
             
 def plot_coin_pair_v(num_trials:int, num_trials_means: int) -> None:
+    if num_trials_means<1:
+        raise ValueError("Invalid input")
     mean_actions_list = []
     for trial in range(num_trials_means):
        mean_actions = coin_pair_v(num_trials)
@@ -39,5 +43,5 @@ def plot_coin_pair_v(num_trials:int, num_trials_means: int) -> None:
     plt.show()
 
 if __name__ == "__main__":
-    plot_coin_pair_v(1000, 10000)
+    plot_coin_pair_v(100,10000)
 
