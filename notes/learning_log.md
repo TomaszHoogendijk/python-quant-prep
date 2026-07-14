@@ -297,7 +297,6 @@ Basic sanity tests now check:
 - Tests protect the simulator before later cleanup or refactoring.
 - A dictionary can map strategy names to scores, making best/worst logic cleaner.
 - Cleaner data structures reduce repeated conditional logic.
-- Public project notes should record progress and concepts learned, not private ratings or career calibration.
 
 ### Git / workflow
 
@@ -383,13 +382,9 @@ Basic sanity tests now check:
 
 ### Reflections
 
-- The `interpret_strategy()` task was large and difficult, but useful.
-- It forced the use of dictionaries, stored results, trend logic, and output generation together.
-- The task made it clear that the next bottleneck is code hygiene, not core logic.
-- Current pattern:
-  - logic is ahead of coding cleanliness
-  - the code works
-  - the next phase is making the code easier to read and maintain
+- The `interpret_strategy()` task combined dictionaries, stored results, trend logic, and output generation.
+- The completed implementation works, but its structure made later cleanup and refactoring necessary.
+- The next phase focuses on improving readability and maintainability while preserving existing behavior.
 
 ### Next steps
 
@@ -434,7 +429,7 @@ Boarding simulation cleanup/refactor phase.
   - max/min gap variables became more explicit.
 - Noticed that `interpret_strategy()` is doing too many jobs and should be split later.
 
-### What I debugged / understood independently
+### What I debugged / understood
 
 - `git diff` is not a timeline of all historic edits. It compares the last committed version against the current uncommitted working file.
 - Diff output is grouped by file location, not by the order in which edits were made.
@@ -508,7 +503,7 @@ Boarding simulation interpretation refactor.
 - Removed unnecessary lists that only existed to count comparisons.
 - Replaced those lists with direct comparison counts for each trend slice.
 
-### What I debugged / understood independently
+### What I debugged / understood
 
 - A function that both prints and returns data is harder to reason about.
 - Data collection and reporting are separate responsibilities.
@@ -580,7 +575,7 @@ Card-hand probability and consecutive-seating Monte Carlo experiments.
 - Ran the consecutive-seating simulation with `(14, 3, 100_000)` and checked that the result was close to the theoretical probability `3/91`.
 - Committed and pushed the probability experiments.
 
-### What I debugged / understood independently
+### What I debugged / understood
 
 - The card-hand probability can be approached both empirically and theoretically.
 - Sampling card suits without replacement can be modelled with `random.sample(..., counts=...)`.
@@ -657,7 +652,7 @@ General empirical and theoretical room-assignment probability experiment.
 - Used unconnected markers for the independent empirical estimates.
 - Evaluated every fifth trial count to reduce runtime and visual clutter.
 
-### What I debugged / understood independently
+### What I debugged / understood
 
 - For eight distinct people and four labeled rooms, the total number of possible assignments is `4 ** 8`.
 - A fixed room order and an occupancy pattern in any room order are different events.
@@ -821,7 +816,6 @@ Coin Pair V stopping-time simulation, sampling-distribution plot, and NumPy room
 
 #### Coin Pair V
 
-- `==` compares values, while `=` updates a value.
 - `random.choices(..., k=1)` returns a one-element list.
 - `random.choice(...)` returns one selected value directly.
 - The random reflip result can therefore be assigned directly to the selected coin.
@@ -910,7 +904,6 @@ Coin Pair V stopping-time simulation, sampling-distribution plot, and NumPy room
   - trials as rows
   - observations or entities as columns
 - A large performance improvement is only meaningful when the faster implementation still calculates the same event correctly.
-- Syntax can be looked up, but the array dimensions, axis choices, and mathematical meaning must still be understood.
 
 ### Next steps
 
