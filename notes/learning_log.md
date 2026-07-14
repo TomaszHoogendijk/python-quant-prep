@@ -697,11 +697,30 @@ General empirical and theoretical room-assignment probability experiment.
 
 ---
 
-## Day 15 — 13/07/2026 — Room-assignment naming cleanup
+## Day 15 — 13/07/2026 — Coin Pair V and NumPy vectorization
 
-### Completed
+### Commit / project
 
-- Improved names in the empirical-versus-theoretical plotting function.
+Coin Pair V stopping-time simulation, sampling-distribution plot, and NumPy room-assignment implementation.
+
+### What works
+
+- `probability_experiments/coin_pair_v.py` simulates the Coin Pair V process over repeated trials.
+- The simulation applies a state-based strategy intended to minimize the expected number of movements.
+- The simulation correctly counts:
+  - four initial coin flips
+  - two additional movements per round
+- The empirical mean approaches the separately calculated theoretical expectation of `8.4375`.
+- A histogram shows the distribution of sample means across repeated batches of trials.
+- `probability_experiments/room_assignment_numpy.py` implements the room-assignment simulation with NumPy.
+- The NumPy implementation estimates the same probability as the original loop-based version.
+- Runtime measurements compare the NumPy and pure-Python implementations using identical inputs.
+
+### What I changed
+
+#### Room-assignment cleanup
+
+- Improved names in the empirical-versus-theoretical comparison plot.
 - Replaced abbreviated plotting variables with:
   - `trial_counts`
   - `theoretical_probabilities`
@@ -710,19 +729,199 @@ General empirical and theoretical room-assignment probability experiment.
 - Renamed its loop value to `room_count`.
 - Kept empirical estimates as unconnected markers.
 - Kept the theoretical probability as a constant reference line.
-- Ran the script after the naming cleanup.
-- Reviewed the working-tree changes before committing.
+
+#### Coin Pair V
+
+- Added `probability_experiments/coin_pair_v.py`.
+- Built `coin_pair_v(...)` to simulate repeated Coin Pair V games.
+- Represented the current state as a list containing four `"heads"` or `"tails"` values.
+- Started every trial with four movements for the initial flips.
+- Repeated rounds until all four coins were heads.
+- In each round:
+  - turned one tail into a head
+  - prevented the same coin from being selected twice
+  - reflipped another tail when one remained
+  - otherwise reflipped another head
+  - added two movements
+- Averaged total movements across all trials.
+- Replaced an integer-based coin-flip conversion with direct sampling using `random.choice(...)`.
+- Added validation for invalid trial counts.
+- Updated the return type to `float`.
+- Improved names such as:
+  - `result` to `coin_outcome`
+  - the stored repeated estimates to `mean_actions_list`
+- Added an `if __name__ == "__main__":` guard.
+- Added `plot_coin_pair_v(...)`.
+- Generated many independent estimates of the mean movement count.
+- Stored the resulting sample means.
+- Plotted their distribution using `plt.hist(...)`.
+
+#### NumPy room assignment
+
+- Added `probability_experiments/room_assignment_numpy.py`.
+- Imported NumPy using:
+
+  ```python
+  import numpy as np
+  ```
+
+- Generated all room assignments at once using a two-dimensional NumPy array.
+- Used an array shape of:
+
+  ```text
+  (num_trials, num_people)
+  ```
+
+- Generated room labels using `np.random.randint(...)`.
+- Removed the Python loop over individual trials.
+- Kept only a small loop over room labels.
+- Compared the complete outcome array with each room label.
+- Used Boolean arrays and `.sum(axis=1)` to count each room once per trial.
+- Stored the room-count arrays and combined them into a NumPy array.
+- Used `.T` to convert the room-count structure from:
+
+  ```text
+  (num_rooms, num_trials)
+  ```
+
+  to:
+
+  ```text
+  (num_trials, num_rooms)
+  ```
+
+- Sorted every occupancy row using `np.sort(..., axis=1)`.
+- Sorted the target occupancy pattern.
+- Used broadcasting to compare the target against every simulated trial simultaneously.
+- Used `.all(axis=1)` to reduce each comparison row to one trial-level Boolean.
+- Used `.sum()` to count successful trials.
+- Returned the successful-trial proportion as a float.
+- Added validation for:
+  - room counts below one
+  - people counts below one
+  - trial counts below one
+  - incorrect assignment length
+  - assignment values that do not sum to the number of people
+  - negative occupancy values
+- Added a main guard for direct execution.
+
+#### Runtime comparison
+
+- Imported Python’s `time` module.
+- Used `time.perf_counter()` before and after each function call.
+- Calculated elapsed time by subtracting the starting timer value from the ending timer value.
+- Compared the NumPy and pure-Python room-assignment functions using the same parameters.
+- For a run of ten million trials, the observed runtimes were approximately:
+  - NumPy: `0.73` seconds
+  - pure Python: `10.44` seconds
+- The observed NumPy implementation was approximately fourteen times faster on that run.
+- Confirmed that both implementations produced estimates close to the same theoretical probability.
+
+### What I debugged / understood
+
+#### Coin Pair V
+
+- `==` compares values, while `=` updates a value.
+- `random.choices(..., k=1)` returns a one-element list.
+- `random.choice(...)` returns one selected value directly.
+- The random reflip result can therefore be assigned directly to the selected coin.
+- The function must return the average movement count, not the total across all trials.
+- A function returning an average should use a `float` return type.
+- A connected line is not appropriate when plotted points are independent estimates.
+- The distribution of individual game lengths is discrete.
+- Repeated sample means can form an approximately normal sampling distribution.
+
+#### Coin Pair V theoretical verification
+
+- Letting `E_k` represent the expected additional movements from a state with `k` heads gives:
+  - `E_4 = 0`
+  - `E_3 = 4`
+  - `E_2 = 4`
+  - `E_1 = 6`
+  - `E_0 = 7`
+- Weighting these values by the initial binomial distribution and adding the four initial movements gives:
+
+  ```text
+  8.4375
+  ```
+
+- The theoretical value was used to validate the simulation, not inside the simulation itself.
+
+#### NumPy
+
+- A two-dimensional NumPy array behaves like a matrix:
+  - rows represent trials
+  - columns represent people
+- NumPy can apply one operation to an entire array instead of processing each element through a Python loop.
+- `.shape` gives the length of every dimension.
+- `.ndim` gives the number of dimensions.
+- `.dtype` gives the stored data type.
+- NumPy axis numbering begins at zero.
+- For a two-dimensional array:
+  - `axis=0` collapses rows and gives one result per column
+  - `axis=1` collapses columns and gives one result per row
+- In Boolean arithmetic:
+  - `True` behaves like `1`
+  - `False` behaves like `0`
+- `(outcomes == room).sum(axis=1)` counts one room label separately within every trial.
+- `.T` swaps rows and columns.
+- Broadcasting allows a one-dimensional target occupancy array to be compared with every row of a two-dimensional occupancy matrix.
+- `.all(axis=1)` checks whether every comparison within each trial is true.
+- Summing the resulting Boolean array counts successful trials.
+- `array_shape` is appropriate terminology, while NumPy’s `.size` refers to the total number of elements.
+- Vectorization reduces Python-level loop overhead but may require more memory because many trials are generated simultaneously.
+
+#### Timing
+
+- `time.time()` returns wall-clock time.
+- `time.perf_counter()` is a high-resolution monotonic timer designed for elapsed-time measurements.
+- The absolute value returned by `perf_counter()` is not meaningful by itself.
+- Only the difference between the ending and starting values matters.
+- Runtime comparisons should use identical inputs and should ideally be repeated several times.
+
+### Git / workflow
+
+- Committed and pushed the working Coin Pair V simulation before later cleanup.
+- Used separate cleanup commits for naming, validation, and the main guard.
+- Committed and pushed the NumPy room-assignment simulation as a separate implementation from the pure-Python baseline.
+- Accidentally committed before finishing a small cleanup.
+- Used:
+
+  ```bash
+  git reset --soft HEAD~1
+  ```
+
+  to move back to the previous commit while keeping the removed commit’s changes staged.
+- Corrected the return type and spelling before recommitting.
+- Added and pushed the runtime comparison after confirming that both implementations produced matching probability estimates.
 
 ### Concepts reinforced
 
-- Variable names should describe mathematical meaning rather than only their technical type or axis.
-- Dictionary names should make the meaning of both keys and values understandable.
-- Independent simulation estimates should not automatically be connected by a line.
-- Small cleanup commits are useful after a working feature has already been pushed.
+- A working implementation can be committed before a later cleanup pass.
+- State-based simulations require careful separation between:
+  - current state
+  - deterministic actions
+  - random actions
+  - stopping conditions
+  - movement accounting
+- Theoretical calculations can validate simulations without being embedded inside them.
+- NumPy vectorization is most useful for large, regular numerical operations.
+- Array shape should reflect the model:
+  - trials as rows
+  - observations or entities as columns
+- A large performance improvement is only meaningful when the faster implementation still calculates the same event correctly.
+- Syntax can be looked up, but the array dimensions, axis choices, and mathematical meaning must still be understood.
 
 ### Next steps
 
-- Add automated checks for several valid occupancy patterns.
-- Test patterns that include empty rooms.
-- Consider simplifying the fixed-order theoretical calculation after tests are in place.
-- Continue the remaining boarding-simulator interpretation cleanup.
+- Repeat the runtime comparison several times and compare a typical or median runtime.
+- Test the NumPy implementation on additional occupancy patterns, including empty rooms.
+- Add automated checks comparing the NumPy, pure-Python, and theoretical results.
+- Learn additional NumPy operations:
+  - indexing and slicing
+  - Boolean masks
+  - aggregation
+  - broadcasting in a new setting
+- Begin pandas after more NumPy practice.
+- Consider separating one Coin Pair V game from the repeated-trial averaging function.
+- Simplify duplicated Coin Pair V control flow later without changing its behavior.
