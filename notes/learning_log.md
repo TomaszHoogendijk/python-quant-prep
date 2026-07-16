@@ -936,3 +936,115 @@ The day was primarily spent on probability practice outside the Python project.
 
 - Continue Python work on Day 17.
 - Resume NumPy practice with a problem involving a genuinely different array structure.
+
+---
+
+## Day 17 — 15/07/2026 — NumPy dice simulation and chunked processing
+
+### Commit / project
+
+Vectorized and memory-efficient NumPy implementations of the existing two-dice simulation.
+
+### What works
+
+- `probability_experiments/dice_simulation_numpy.py` simulates two fair dice using NumPy.
+- The implementation returns:
+  - counts for totals 2 through 12
+  - probabilities for totals 2 through 12
+  - the empirical expected sum
+- The NumPy version produces results consistent with the original pure-Python simulation.
+- A runtime comparison demonstrates a substantial speed improvement for large trial counts.
+- A chunked version processes large simulations without storing every trial simultaneously.
+
+### What I changed
+
+#### Vectorized NumPy implementation
+
+- Generated all dice rolls in a two-dimensional array with shape `(num_trials, 2)`.
+- Used one row per trial and one column per die.
+- Generated die values with `np.random.randint(...)`.
+- Summed the two dice within every trial using `.sum(axis=1)`.
+- Counted the frequencies of the possible totals using `np.bincount(...)`.
+- Selected the relevant counts for totals 2 through 12.
+- Divided the complete count array by `num_trials` to calculate the probability array.
+- Calculated the empirical expected sum.
+- Converted NumPy scalar values to ordinary Python `int` and `float` values when constructing the returned dictionaries.
+- Kept the numerical work in NumPy arrays while using dictionaries as a readable output interface.
+- Added validation for non-positive trial counts.
+
+#### Runtime comparison
+
+- Compared the existing pure-Python dice simulation with the NumPy implementation using `time.perf_counter()`.
+- Used identical trial counts for both implementations.
+- For one run of 100 million trials, the observed runtimes were approximately:
+  - pure Python: `34.37` seconds
+  - NumPy: `2.06` seconds
+- The NumPy implementation was approximately seventeen times faster on that run.
+- Confirmed that the estimated probabilities were close to the exact triangular distribution.
+- Confirmed that the empirical expected sum was close to `7`.
+
+#### Chunked NumPy processing
+
+- Updated the NumPy simulation to process trials in multiple chunks.
+- Kept the operations within every chunk vectorized.
+- Used a Python loop over chunks rather than a loop over individual trials.
+- Accumulated:
+  - counts for each possible dice total
+  - the total sum of all simulated rolls
+- Calculated probabilities only after all chunk counts had been combined.
+- Discarded the raw rolls from each completed chunk before processing the next one.
+- Added a `chunks` input.
+- Added validation that:
+  - the chunk count is positive
+  - `num_trials` is divisible by the number of chunks
+- Used equal-sized chunks to keep the implementation simple.
+- Tested the divisibility validation using an intentionally invalid input.
+- The chunked implementation completed a 100-million-trial run in approximately `1.6` seconds in one observed run while using substantially less peak memory than the all-at-once version.
+
+### What I debugged / understood
+
+- NumPy operations can be applied to an entire vector at once.
+- Dividing an array by a scalar divides every element in the array.
+- `np.bincount(...)` counts the number of occurrences of each non-negative integer value.
+- `np.bincount(...)` returns counts indexed by the values being counted.
+- NumPy scalar types such as `np.int64` and `np.float64` can be converted at the output boundary using `int(...)` and `float(...)`.
+- A small loop over the eleven possible dice totals has negligible cost compared with looping over millions of trials.
+- A dictionary is useful as a readable return structure even when NumPy arrays perform the calculations.
+- The original all-at-once NumPy version gains speed partly by storing every trial simultaneously.
+- Chunking reduces peak memory because only one subset of trials exists at a time.
+- Probabilities do not need to be stored separately for every chunk.
+- Combining raw counts and dividing once by the total number of trials gives the correct final probabilities.
+- A loop over a small number of large vectorized chunks is fundamentally different from a Python loop over every individual trial.
+
+### Concepts reinforced
+
+- Vectorization replaces repeated Python-level operations with array-level operations.
+- Array shape should represent the underlying model clearly.
+- Aggregating along the correct axis is central to NumPy programming.
+- Efficient code should be evaluated on both runtime and memory use.
+- Large computations can often be reduced to a small amount of sufficient summary information.
+- Output formatting can be separated from numerical computation.
+- Validation can intentionally restrict an interface when the restriction keeps the implementation simpler and clearer.
+
+### Git / workflow
+
+- Ran both the pure-Python and NumPy implementations before committing.
+- Checked that:
+  - counts summed to the requested number of trials
+  - probabilities summed approximately to `1`
+  - the empirical expected sum was close to `7`
+- Used an invalid divisibility case to test the chunk validation.
+- Used separate commits for:
+  - the vectorized NumPy dice simulation
+  - the chunked memory-efficient implementation
+- Used `git status` and `git diff` before committing and pushing.
+
+### Next steps
+
+- Add automated assertions for:
+  - total counts
+  - probability sum
+  - expected-sum tolerance
+- Repeat runtime comparisons and compare median runtimes.
+- Practise NumPy indexing, slicing, Boolean masks, and filtering in a new setting.
+- Continue building NumPy fluency before beginning pandas.
