@@ -2,6 +2,7 @@ import random
 import statistics
 import math
 import matplotlib.pyplot as plt
+import time
 
 
 def dice_generator(n):
@@ -63,3 +64,11 @@ def plot_dice(result: dict) -> None:
     plt.title("Probability of a 2 dice sum")
     plt.tight_layout()
     plt.show()
+
+if __name__ == "__main__":
+    start_time = time.perf_counter()
+    result = simulate_dice(100_000_000)
+    end_time = time.perf_counter()
+    run_time = end_time - start_time
+    print(result)
+    print(run_time)

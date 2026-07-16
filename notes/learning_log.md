@@ -918,3 +918,21 @@ Coin Pair V stopping-time simulation, sampling-distribution plot, and NumPy room
 - Begin pandas after more NumPy practice.
 - Consider separating one Coin Pair V game from the repeated-trial averaging function.
 - Simplify duplicated Coin Pair V control flow later without changing its behavior.
+
+---
+
+## Day 16 — 14/07/2026 — Probability study day
+
+No Python project work or repository changes were completed.
+
+The day was primarily spent on probability practice outside the Python project.
+
+### Git / workflow
+
+- No code changes were made.
+- No commit was required.
+
+### Next steps
+
+- Continue Python work on Day 17.
+- Resume NumPy practice with a problem involving a genuinely different array structure.
